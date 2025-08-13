@@ -1,6 +1,10 @@
 # Don't track the output folder, where temporary recordings and output lists are stored
 /output/
 
+# PlatformIO
+.pio/
+.vscode/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
