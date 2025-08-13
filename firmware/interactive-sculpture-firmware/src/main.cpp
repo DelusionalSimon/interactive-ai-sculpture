@@ -57,11 +57,10 @@ void loop() {
   float sinValueLeaf1 = sin(phaseLeaf1);
 
   // Get the angle the leaf should have, with higher resolution
-  int angleLeaf1 = map(sinValueLeaf1*1000, -1000, 1000, LEAF_MIN_ANGLE*10, LEAF_MAX_ANGLE*10);
-  // TODO : write a mapping function to use the full resolution of the servo
+  float angleLeaf1 = map_float(sinValueLeaf1, -1, 1, LEAF_MIN_ANGLE, LEAF_MAX_ANGLE);
 
   // Convert the angle to pulse width
-  int pulseWidthLeaf1 = map(angleLeaf1, 0, SERVO_MAX_ANGLE*10, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
+  int pulseWidthLeaf1 = map_float(angleLeaf1, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
   
   // Set the servo position
   pwm.writeMicroseconds(SERVO_LEAF_1, pulseWidthLeaf1);
@@ -75,4 +74,19 @@ void loop() {
   }
 
 }
+ 
 
+//-------------[ HELPER FUNCTIONS ]-------------
+
+ /**
+ * @brief Re-maps a number from one range to another using floating-point math.
+ * @param x The number to map.
+ * @param in_min The lower bound of the value's current range.
+ * @param in_max The upper bound of the value's current range.
+ * @param out_min The lower bound of the value's target range.
+ * @param out_max The upper bound of the value's target range.
+ * @return The mapped value as a float.
+ */
+float map_float(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
