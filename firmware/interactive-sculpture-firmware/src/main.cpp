@@ -38,7 +38,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 #define LEAF_MAX_ANGLE 135
 
 // Animation parameters to make each leaf move independently
-float speedLeaf1 = 0.015;
+float speedLeaf1 = 0.001;
 float phaseLeaf1 = 0.0;
 // TODO: Add more leaves and their parameters
 
