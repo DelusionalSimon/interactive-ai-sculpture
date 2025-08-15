@@ -1,20 +1,20 @@
-/*****************************************************************************
+/**
+ * @file        main.cpp
+ * @author      Simon Håkansson
+ * @date        2025-08-13
+ * @version     0.2.1
+ * @brief       Firmware for the GIBCA 2025 interactive sculpture.
  *
- * File:        main.cpp
- * Author:      Simon Håkansson
- * Date:        2025-08-13
+ * @details     This firmware handles sensor inputs and controls the mechatronic
+ * leaves of the sculpture. It interfaces with a host computer
+ * over serial to initialize interaction and receive commands
+ * based on AI analysis.
  *
- * Description: Firmware for handling sensor inputs and controlling 
- * the mechatronic leaves of the GIBCA 2025 interactive sculpture. 
- * Interfaces with a host computer over serial to initialize 
- * interaction and receive commands based on AI analysis.
+ * @copyright   Copyright (c) 2025 Simon Håkansson
  *
- * Copyright (c) 2025 Simon Håkansson
- *  
  * This software is released under the MIT License.
  * See the LICENSE file in the project root for the full license text.
- *
- *****************************************************************************/
+ */
 //-------------[ LIBRARIES ]-------------
 #include <Arduino.h>
 #include <Adafruit_PWMServoDriver.h>
