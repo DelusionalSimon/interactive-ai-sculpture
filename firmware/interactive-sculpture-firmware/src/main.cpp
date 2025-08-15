@@ -42,6 +42,9 @@ float speedLeaf1 = 0.015;
 float phaseLeaf1 = 0.0;
 // TODO: Add more leaves and their parameters
 
+//-------------[ FUNCTION PROTOTYPES ]-------------
+float map_float(float x, float in_min, float in_max, float out_min, float out_max);
+
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
   
