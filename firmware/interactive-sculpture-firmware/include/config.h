@@ -19,7 +19,15 @@
 
 //-------------[ HARDWARE PINS & ADDRESSES ]-------------
 #define NUM_LEAVES 1 // Number of leaves in the sculpture
-#define SERVO_LEAF_1 0 // testing with one leaf first
+
+// define the pin positions for the leaves on the PCA9685 servo driver
+struct Leaf {
+    int servoPin; // Pin connected to the servo motor
+};
+const Leaf LEAF_PINS[NUM_LEAVES] = {
+    {0}, // Leaf 1 servo pin
+};
+
 // TODO: Add other servo and sensor pins here
 
 //-------------[ SERVO CALIBRATION ]-------------
@@ -50,7 +58,7 @@ struct BaselineMovement {
 };
 // Define the baseline movement for each leaf
 BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
-    {0.001, 0.0}, // Leaf 1 baseline movement
+    {0.01, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
 };
 // TODO: Add more leaves
 

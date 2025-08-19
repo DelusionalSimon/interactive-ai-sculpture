@@ -84,7 +84,7 @@ void updateLeafMovement() {
     int pulseWidth = mapFloat(angle, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
     
     // Set the servo position
-    pwm.writeMicroseconds(SERVO_LEAF_1 + i, pulseWidth);
+    pwm.writeMicroseconds(LEAF_PINS[i].servoPin, pulseWidth);
 
     // Increment the phase for the current leaf
     currentPhases[i] += LEAF_BASELINES[i].speed;
