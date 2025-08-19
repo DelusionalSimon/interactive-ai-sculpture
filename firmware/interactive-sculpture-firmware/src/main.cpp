@@ -55,16 +55,19 @@ void loop() {
   updateLeafMovement();
 
 }
- /**
- * @brief  Sets the position of a leaf servo using its phase.
+
+  
+//-------------[ HELPER FUNCTIONS ]-------------
+/** 
+ * @brief  Translates an animation phase into a physical servo position.
  *
- * @details This function takes the current phase of a given leaf and calculates the
- * angle where it should be at using a sine function
+ * @details This is a core utility function that takes a point in an animation cycle
+ * (the phase) and maps it to a precise pulse width for a specific servo,
+ * respecting the pre-defined safe movement range for that leaf.
  *
  * @param   phase The current phase of the sine wave for the leaf.
  * @param   leafIndex The index of the leaf to move.
- *
- * @return  None
+ * 
  */
 void moveLeaf(float phase, int leafIndex) {
   
@@ -79,21 +82,16 @@ void moveLeaf(float phase, int leafIndex) {
   
   // Set the servo position
   pwm.writeMicroseconds(LEAF_PINS[leafIndex].servoPin, pulseWidth);
-  
+
 }
-  
-//-------------[ HELPER FUNCTIONS ]-------------
 /**
- * @brief  Calculates and sets the new position for all leaf servos based on a sine wave.
+ * @brief  Moves the leaf servos in organic paths
  *
- * @details This function reads the current phase and speed for the leaves, calculates a
- * new angle using a sine function to create a smooth, organic motion,
- * and then sends the corresponding pulse width to the servo driver. It also
- * handles phase wrapping to prevent overflow.
+ * @details This function uses the moveLeaf() function to move all leaves in
+ * organic undulating paths and handles phase wrapping to prevent overflow.
  *
- * @param   None
- *
- * @return  None
+ * @todo    Add logic to handle different movement sets (e.g., dance, listen).
+ * 
  */
 void updateLeafMovement() {
   
