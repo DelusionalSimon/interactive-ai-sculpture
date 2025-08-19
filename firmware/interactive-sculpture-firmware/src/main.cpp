@@ -29,6 +29,8 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 float currentPhases[NUM_LEAVES];
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
+void moveLeaf(float phase, int leafIndex);
+void initializeLeafPositions();
 void updateLeafMovement();
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
 
@@ -44,7 +46,8 @@ void setup() {
     currentPhases[i] = LEAF_BASELINES[i].phaseOffset;
   }
 
-  // TODO: Move leaves to starting position
+  // Move leaves to starting position
+  initializeLeafPositions();
   
 
 }
@@ -83,6 +86,21 @@ void moveLeaf(float phase, int leafIndex) {
   // Set the servo position
   pwm.writeMicroseconds(LEAF_PINS[leafIndex].servoPin, pulseWidth);
 
+}
+/**
+ * @brief  Initializes the leaf positions based on their starting phases.
+ * 
+ */
+void initializeLeafPositions() {
+  
+  for (int i = 0; i < NUM_LEAVES; i++) {
+
+    // Move the leaf to its initial position based on its baseline phase offset
+    moveLeaf(LEAF_BASELINES[i].phaseOffset, i);
+    }
+
+  // Give the servos a moment to reach their starting positions
+  delay(1500);  
 }
 /**
  * @brief  Moves the leaf servos in organic paths
