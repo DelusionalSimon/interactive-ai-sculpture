@@ -18,6 +18,7 @@
 #define CONFIG_H
 
 //-------------[ HARDWARE PINS & ADDRESSES ]-------------
+#define NUM_LEAVES 1 // Number of leaves in the sculpture
 #define SERVO_LEAF_1 0 // testing with one leaf first
 // TODO: Add other servo and sensor pins here
 
@@ -33,17 +34,24 @@
     int minAngle; // Minimum angle in degrees
     int maxAngle; // Maximum angle in degrees
 };
-const AngleRange LEAF_1_RANGE = {45, 135};
+const AngleRange LEAF_RANGES[NUM_LEAVES] = {
+    {45, 135}, // Leaf 1 range
+};
 //TODO: Add more leaves with their ranges 
 
 //-------------[ MOVEMENT SET CONFIGURATIONS ]-------------
-// Animation parameters declarations
+// Declare the array of current phases for each leaf.
+extern float currentPhases[];
+
+// Declaration of the leaf baseline movement
 struct BaselineMovement {
     float speed; // Speed of the movement
-    float phase; // Phase offset for sine wave motion
+    float phaseOffset; // Phase offset for sine wave motion
 };
 // Define the baseline movement for each leaf
-BaselineMovement LEAF_1_BASELINE = {0.01, 0.0};
+BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
+    {0.001, 0.0}, // Leaf 1 baseline movement
+};
 // TODO: Add more leaves
 
 //TODO: Add more movement sets for listening, reacting, and other animations

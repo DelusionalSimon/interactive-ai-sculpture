@@ -2,7 +2,7 @@
  * @file        main.cpp
  * @author      Simon Håkansson
  * @date        2025-08-13
- * @version     0.2.1
+ * @version     0.2.2
  * @brief       Firmware for the GIBCA 2025 interactive sculpture.
  *
  * @details     This firmware handles sensor inputs and controls the mechatronic
@@ -25,8 +25,8 @@
 // Create an instance of the Adafruit_PWMServoDriver class
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-// Variable to hold the current phase for sine wave motion
-float currentPhase = 0.0; 
+// Initialize an array to hold the current phase for each leaf
+float currentPhases[NUM_LEAVES];
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
 void updateLeafMovement();
@@ -39,8 +39,13 @@ void setup() {
   pwm.begin();
   pwm.setPWMFreq(SERVO_FREQUENCY);
 
-  // TODO: Move leaves to starting position
+  // Initialize the starting phase for each leaf
+  for (int i = 0; i < NUM_LEAVES; i++) {
+    currentPhases[i] = LEAF_BASELINES[i].phaseOffset;
+  }
 
+  // TODO: Move leaves to starting position
+  
 
 }
 
@@ -53,6 +58,7 @@ void loop() {
  
 
 //-------------[ HELPER FUNCTIONS ]-------------
+
 
 /**
  * @brief  Calculates and sets the new position for a single leaf servo based on a sine wave.
@@ -67,24 +73,30 @@ void loop() {
  * @return  None
  */
 void updateLeafMovement() {
-  float sinValueLeaf1 = sin(currentPhase+LEAF_1_BASELINE.phase);
-
-  // Get the angle the leaf should have, with higher resolution
-  float angleLeaf1 = mapFloat(sinValueLeaf1, -1, 1, LEAF_1_RANGE.minAngle, LEAF_1_RANGE.maxAngle);
-
-  // Convert the angle to pulse width
-  int pulseWidthLeaf1 = mapFloat(angleLeaf1, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
   
-  // Set the servo position
-  pwm.writeMicroseconds(SERVO_LEAF_1, pulseWidthLeaf1);
+  for (int i = 0; i < NUM_LEAVES; i++) {
 
-  // Increment the phase for the next iteration
-  currentPhase += LEAF_1_BASELINE.speed;
+    // Calculate the sine value for the current phase of this leaf
+    float sinValue = sin(currentPhases[i]);
 
-  // Reset the phase if it exceeds 2*PI to avoid overflow
-  if (currentPhase >= 2 * PI) {
-    currentPhase -= 2 * PI;
-  }
+    // Get the angle the leaf should have, with higher resolution
+    float angle = mapFloat(sinValue, -1, 1, LEAF_RANGES[i].minAngle, LEAF_RANGES[i].maxAngle);
+
+    // Convert the angle to pulse width
+    int pulseWidth = mapFloat(angle, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
+    
+    // Set the servo position
+    pwm.writeMicroseconds(SERVO_LEAF_1 + i, pulseWidth);
+
+    // Increment the phase for the current leaf
+    currentPhases[i] += LEAF_BASELINES[i].speed;
+
+    // Reset the phase of the leaf if it exceeds 2*PI to avoid overflow
+    if (currentPhases[i] >= 2 * PI) {
+      currentPhases[i] -= 2 * PI;
+    }
+
+  }  
 }
 
  /**
