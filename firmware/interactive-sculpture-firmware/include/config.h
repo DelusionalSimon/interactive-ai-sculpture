@@ -27,10 +27,15 @@
 #define SERVO_MAX_ANGLE 270
 #define SERVO_FREQUENCY 50
 
-//-------------[ MOVEMENT SETTINGS ]-------------
-// Define the safe movement range for the leaves
-#define LEAF_MIN_ANGLE 45
-#define LEAF_MAX_ANGLE 135
+//-------------[ PHYSICAL CONSTRAINTS ]-------------
+// Define the safe movement range for each of the leaves
+ struct AngleRange {
+    int minAngle; // Minimum angle in degrees
+    int maxAngle; // Maximum angle in degrees
+};
+const AngleRange LEAF_1_RANGE = {45, 135};
+//TODO: Add more leaves with their ranges 
+
 
 // Animation parameters declarations
 extern float speedLeaf1;

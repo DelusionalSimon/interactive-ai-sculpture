@@ -26,7 +26,7 @@
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
 // Animation parameters to make each leaf move independently
-float speedLeaf1 = 0.015; 
+float speedLeaf1 = 0.001; 
 float phaseLeaf1 = 0.0;
 // TODO: Add more leaves and their parameters
 
@@ -69,7 +69,7 @@ void updateLeafMovement() {
   float sinValueLeaf1 = sin(phaseLeaf1);
 
   // Get the angle the leaf should have, with higher resolution
-  float angleLeaf1 = mapFloat(sinValueLeaf1, -1, 1, LEAF_MIN_ANGLE, LEAF_MAX_ANGLE);
+  float angleLeaf1 = mapFloat(sinValueLeaf1, -1, 1, LEAF_1_RANGE.minAngle, LEAF_1_RANGE.maxAngle);
 
   // Convert the angle to pulse width
   int pulseWidthLeaf1 = mapFloat(angleLeaf1, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
