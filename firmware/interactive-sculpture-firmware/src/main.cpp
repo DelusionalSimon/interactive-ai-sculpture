@@ -58,12 +58,10 @@ void loop() {
  
 
 //-------------[ HELPER FUNCTIONS ]-------------
-
-
 /**
- * @brief  Calculates and sets the new position for a single leaf servo based on a sine wave.
+ * @brief  Calculates and sets the new position for all leaf servos based on a sine wave.
  *
- * @details This function reads the current phase and speed for a leaf, calculates a
+ * @details This function reads the current phase and speed for the leaves, calculates a
  * new angle using a sine function to create a smooth, organic motion,
  * and then sends the corresponding pulse width to the servo driver. It also
  * handles phase wrapping to prevent overflow.
