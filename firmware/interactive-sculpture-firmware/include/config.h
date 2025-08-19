@@ -59,9 +59,26 @@ struct BaselineMovement {
 // Define the baseline movement for each leaf
 const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
     {0.01, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
+    // TODO: Add more leaves
 };
-// TODO: Add more leaves
 
-//TODO: Add more movement sets for listening, reacting, and other animations
+
+//-------------[ STATE MACHINE DEFINITION ]-------------
+
+// An enum to give the states clear, readable names.
+enum MovementState {
+    IDLE,       // Default state when the sculpture is not interacting
+    LISTEN,     // State when the sculpture is listening for input 
+};
+
+// Define the movement sets for different states
+struct MovementSet {
+    float amplitude;    // How wide the movement is
+    float centerAngle;  // The midpoint of the movement
+    float speed;        // The speed of the sine wave (times baseline speed)
+};
+const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 0.015};
+const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.02};
+// TODO: Add more movement sets
 
 #endif // CONFIG_H
