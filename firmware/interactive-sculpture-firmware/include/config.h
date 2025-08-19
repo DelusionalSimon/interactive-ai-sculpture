@@ -36,10 +36,14 @@
 const AngleRange LEAF_1_RANGE = {45, 135};
 //TODO: Add more leaves with their ranges 
 
-
+//-------------[ MOVEMENT SET CONFIGURATIONS ]-------------
 // Animation parameters declarations
-extern float speedLeaf1;
-extern float phaseLeaf1;
+struct BaselineMovement {
+    float speed; // Speed of the movement
+    float phase; // Phase offset for sine wave motion
+};
+// Define the baseline movement for each leaf
+BaselineMovement LEAF_1_BASELINE = {0.01, 0.0};
 // TODO: Add more leaves
 
 //TODO: Add more movement sets for listening, reacting, and other animations

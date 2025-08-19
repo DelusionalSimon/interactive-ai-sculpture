@@ -21,14 +21,12 @@
 #include <Wire.h>
 #include <config.h>
 
-//-------------[ CONFIGURATION ]-------------
+//-------------[ INITIALIZATION ]-------------
 // Create an instance of the Adafruit_PWMServoDriver class
 Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 
-// Animation parameters to make each leaf move independently
-float speedLeaf1 = 0.001; 
-float phaseLeaf1 = 0.0;
-// TODO: Add more leaves and their parameters
+// Variable to hold the current phase for sine wave motion
+float currentPhase = 0.0; 
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
 void updateLeafMovement();
@@ -40,6 +38,9 @@ void setup() {
   // Initialize the PCA9685 servo driver.
   pwm.begin();
   pwm.setPWMFreq(SERVO_FREQUENCY);
+
+  // TODO: Move leaves to starting position
+
 
 }
 
@@ -66,7 +67,7 @@ void loop() {
  * @return  None
  */
 void updateLeafMovement() {
-  float sinValueLeaf1 = sin(phaseLeaf1);
+  float sinValueLeaf1 = sin(currentPhase+LEAF_1_BASELINE.phase);
 
   // Get the angle the leaf should have, with higher resolution
   float angleLeaf1 = mapFloat(sinValueLeaf1, -1, 1, LEAF_1_RANGE.minAngle, LEAF_1_RANGE.maxAngle);
@@ -78,11 +79,11 @@ void updateLeafMovement() {
   pwm.writeMicroseconds(SERVO_LEAF_1, pulseWidthLeaf1);
 
   // Increment the phase for the next iteration
-  phaseLeaf1 += speedLeaf1;
+  currentPhase += LEAF_1_BASELINE.speed;
 
   // Reset the phase if it exceeds 2*PI to avoid overflow
-  if (phaseLeaf1 >= 2 * PI) {
-    phaseLeaf1 -= 2 * PI;
+  if (currentPhase >= 2 * PI) {
+    currentPhase -= 2 * PI;
   }
 }
 
