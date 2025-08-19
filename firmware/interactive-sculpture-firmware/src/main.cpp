@@ -55,8 +55,33 @@ void loop() {
   updateLeafMovement();
 
 }
- 
+ /**
+ * @brief  Sets the position of a leaf servo using its phase.
+ *
+ * @details This function takes the current phase of a given leaf and calculates the
+ * angle where it should be at using a sine function
+ *
+ * @param   phase The current phase of the sine wave for the leaf.
+ * @param   leafIndex The index of the leaf to move.
+ *
+ * @return  None
+ */
+void moveLeaf(float phase, int leafIndex) {
+  
+  // Calculate the sine value for the current phase of this leaf
+  float sinValue = sin(phase);
 
+  // Get the angle the leaf should have using float precision
+  float angle = mapFloat(sinValue, -1, 1, LEAF_RANGES[leafIndex].minAngle, LEAF_RANGES[leafIndex].maxAngle);
+
+  // Convert the angle to pulse width
+  int pulseWidth = mapFloat(angle, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
+  
+  // Set the servo position
+  pwm.writeMicroseconds(LEAF_PINS[leafIndex].servoPin, pulseWidth);
+  
+}
+  
 //-------------[ HELPER FUNCTIONS ]-------------
 /**
  * @brief  Calculates and sets the new position for all leaf servos based on a sine wave.
@@ -74,17 +99,8 @@ void updateLeafMovement() {
   
   for (int i = 0; i < NUM_LEAVES; i++) {
 
-    // Calculate the sine value for the current phase of this leaf
-    float sinValue = sin(currentPhases[i]);
-
-    // Get the angle the leaf should have, with higher resolution
-    float angle = mapFloat(sinValue, -1, 1, LEAF_RANGES[i].minAngle, LEAF_RANGES[i].maxAngle);
-
-    // Convert the angle to pulse width
-    int pulseWidth = mapFloat(angle, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
-    
-    // Set the servo position
-    pwm.writeMicroseconds(LEAF_PINS[i].servoPin, pulseWidth);
+    // Move the leaf to its new position based on the current phase
+    moveLeaf(currentPhases[i], i);
 
     // Increment the phase for the current leaf
     currentPhases[i] += LEAF_BASELINES[i].speed;
