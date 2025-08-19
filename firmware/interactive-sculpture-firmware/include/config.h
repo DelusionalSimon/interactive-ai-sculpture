@@ -57,7 +57,7 @@ struct BaselineMovement {
     float phaseOffset; // Phase offset for sine wave motion
 };
 // Define the baseline movement for each leaf
-BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
+const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
     {0.01, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
 };
 // TODO: Add more leaves
