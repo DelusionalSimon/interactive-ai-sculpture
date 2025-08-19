@@ -28,15 +28,22 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 // Initialize an array to hold the current phase for each leaf
 float currentPhases[NUM_LEAVES];
 
+// Set up state machone for movement
+MovementState currentState = IDLE; // Start in IDLE state
+
 //-------------[ FUNCTION PROTOTYPES ]-------------
 void moveLeaf(float phase, int leafIndex);
 void initializeLeafPositions();
 void updateLeafMovement();
+void setMovementState(MovementState state);
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
 
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
-  
+
+  // Initialize serial communication for debugging
+  Serial.begin(9600);
+    
   // Initialize the PCA9685 servo driver.
   pwm.begin();
   pwm.setPWMFreq(SERVO_FREQUENCY);
@@ -55,7 +62,7 @@ void setup() {
 //-------------[ MAIN LOOP ]-------------
 void loop() {
   
-  updateLeafMovement();
+    updateLeafMovement();
 
 }
 
@@ -87,6 +94,7 @@ void moveLeaf(float phase, int leafIndex) {
   pwm.writeMicroseconds(LEAF_PINS[leafIndex].servoPin, pulseWidth);
 
 }
+
 /**
  * @brief  Initializes the leaf positions based on their starting phases.
  * 
@@ -102,6 +110,7 @@ void initializeLeafPositions() {
   // Give the servos a moment to reach their starting positions
   delay(1500);  
 }
+
 /**
  * @brief  Moves the leaf servos in organic paths
  *
@@ -112,14 +121,27 @@ void initializeLeafPositions() {
  * 
  */
 void updateLeafMovement() {
-  
+
+  MovementSet activeMovement;
+
+  // Select the correct movement parameters based on the current state
+  switch (currentState) {
+      case LISTEN:
+          activeMovement = LISTEN_MOVEMENT;
+          break;
+      case IDLE:
+      default:
+          activeMovement = IDLE_MOVEMENT;
+          break;
+  }
+   
   for (int i = 0; i < NUM_LEAVES; i++) {
 
     // Move the leaf to its new position based on the current phase
     moveLeaf(currentPhases[i], i);
 
     // Increment the phase for the current leaf
-    currentPhases[i] += LEAF_BASELINES[i].speed;
+    currentPhases[i] += activeMovement.speed;
 
     // Reset the phase of the leaf if it exceeds 2*PI to avoid overflow
     if (currentPhases[i] >= 2 * PI) {
@@ -127,6 +149,19 @@ void updateLeafMovement() {
     }
 
   }  
+}
+
+/**
+ * @brief  Changes the current state.
+ * 
+ * @param   state The new state to set.
+ * 
+ * @todo    Implement logic to handle smooth transitions between states
+ * 
+ */
+void setMovementState(MovementState state) {
+  // Set the current state to the new state
+  currentState = state;  
 }
 
  /**
