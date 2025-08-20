@@ -65,6 +65,9 @@ const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
 
 //-------------[ STATE MACHINE DEFINITION ]-------------
 
+// Define the easing factor for state transitions
+#define EASING 0.05 //
+
 // An enum to give the states clear, readable names.
 enum MovementState {
     IDLE,       // Default state when the sculpture is not interacting

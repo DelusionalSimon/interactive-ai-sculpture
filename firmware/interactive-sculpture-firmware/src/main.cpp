@@ -31,6 +31,16 @@ float currentPhases[NUM_LEAVES];
 // Set up state machone for movement
 MovementState currentState = IDLE; // Start in IDLE state
 
+// A struct to hold the target state we are easing towards.
+MovementSet targetState;
+
+// Variables to hold the current, real-time animation parameters.
+float currentAmplitude;
+float currentCenterAngle;
+float currentSpeed;
+
+
+
 // Test harness configuration
 unsigned long lastStateChangeTime = 0;
 const long stateChangeInterval = 5000; 
@@ -83,6 +93,7 @@ void loop() {
 
   
 //-------------[ HELPER FUNCTIONS ]-------------
+
 /** 
  * @brief  Translates an animation phase into a physical servo position.
  *
@@ -132,7 +143,7 @@ void initializeLeafPositions() {
  * @details This function uses the moveLeaf() function to move all leaves in
  * organic undulating paths and handles phase wrapping to prevent overflow.
  *
- * @todo    Add logic to handle different movement sets (e.g., dance, listen).
+ * @todo add logic to handle amplitude and center angle dynamically
  * 
  */
 void updateLeafMovement() {
@@ -176,6 +187,8 @@ void updateLeafMovement() {
 void setMovementState(MovementState state) {
   // Set the current state to the new state
   currentState = state;  
+
+
 }
 
  /**
