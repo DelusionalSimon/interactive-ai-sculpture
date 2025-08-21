@@ -166,7 +166,7 @@ void updateLeafMovement() {
     moveLeaf(currentPhases[i], i);
 
     // Increment the phase for the current leaf
-    currentPhases[i] += activeMovement.speed;
+    currentPhases[i] += (LEAF_BASELINES[i].speed*activeMovement.speedFactor);
 
     // Reset the phase of the leaf if it exceeds 2*PI to avoid overflow
     if (currentPhases[i] >= 2 * PI) {

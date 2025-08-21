@@ -78,10 +78,10 @@ enum MovementState {
 struct MovementSet {
     float amplitude;    // How wide the movement is
     float centerAngle;  // The midpoint of the movement
-    float speed;        // The speed of the sine wave (times baseline speed)
+    float speedFactor;        // The speed of the sine wave (times baseline speed)
 };
-const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 0.015};
-const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.02};
+const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 1};
+const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.5};
 // TODO: Add more movement sets
 
 #endif // CONFIG_H
