@@ -4,6 +4,10 @@
 # PlatformIO
 .pio/
 
+# Ignore all .gitignore files PlatformIO creates in subdirectories, while keeping the root
+.gitignore
+!/.gitignore
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[codz]
