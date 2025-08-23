@@ -10,6 +10,14 @@
  * This software is released under the MIT License.
  * See the LICENSE file in the project root for the full license text.
  */
+
+ /* 
+ TODO: The current MVP relies solely on the ultrasonic sensor for both
+ approach and interaction detection. Post-sprint, this needs to be
+ rigorously tested for reliability. Implement capacitive touch and IR 
+ distance detection as a fallback if necessary.
+  */
+
 //-------------[ LIBRARIES ]-------------
 #include <Arduino.h>
 
@@ -19,7 +27,7 @@
 // Define sensor pins
 #define ULTRASONIC_TRIG_PIN 2
 #define ULTRASONIC_ECHO_PIN 3
-//TODO: Add capacitive touch and IR sensor pins as each system is initiated
+
 
 // Ultrasonic sensor timing and conversion
 const int ULTRASONIC_CLEAR_PULSE = 2; // in microseconds
