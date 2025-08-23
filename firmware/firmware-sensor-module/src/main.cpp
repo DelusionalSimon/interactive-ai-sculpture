@@ -24,11 +24,20 @@
 //-------------[ CONFIGURATION ]------------
 // to be moved to config.h when integrated into interactive-sculpture-firmware
 
-// An enum to create clear, readable names for our sensors
+// An enum to create clear, readable names for the sensors
 enum SensorType {
   APPROACH_SENSOR,
   INTERACTION_SENSOR
 };
+
+// An enum to create clear, readable names for the user position states
+enum UserState {
+    NO_USER,
+    USER_APPROACHING,
+    USER_INTERACTING
+};
+UserState currentState = NO_USER;
+
 
 // Define Ultrasonic sensor pins
 // Approach sensor
@@ -38,22 +47,24 @@ enum SensorType {
 #define INTERACTION_TRIG_PIN 4
 #define INTERACTION_ECHO_PIN 5
 
+// Threshold distances in cm
+#define APPROACH_THRESHOLD_CM 30.0 
+#define INTERACTION_THRESHOLD_CM 10.0
 
 // Ultrasonic sensor timing and conversion
 const int ULTRASONIC_CLEAR_PULSE = 2; // in microseconds
 const int ULTRASONIC_TRIGGER_PULSE = 10; // in microseconds
 const float SPEED_OF_SOUND = 0.0343; // cm per microsecond
 
-// Main loop delays for the test harness
-const int APPROACH_INTERVAL_MS = 500;   // Read the approach sensor every 500ms
-const int INTERACTION_INTERVAL_MS = 1200; // Read the interaction sensor every 1.2s
+// Sampling Interval for the sensors
+const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
 
-// Timer variables for each task
-unsigned long lastApproachReadingTime = 0;
-unsigned long lastInteractionReadingTime = 0;
+// Concurrency variables for each separate task
+unsigned long userDetectTime = 0;
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
 float readUltrasonicDistance(SensorType sensor);
+void userDetection();
 
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
@@ -70,24 +81,9 @@ void setup() {
 
 //-------------[ MAIN LOOP ]-------------
 void loop() {
-  // Check if it's time to take a new sensor reading
-  if (millis() - lastApproachReadingTime >= APPROACH_INTERVAL_MS) {
-    lastApproachReadingTime = millis(); // Update the timer
-
-    float distance = readUltrasonicDistance(APPROACH_SENSOR);
-    Serial.print("Approach Distance: ");
-    Serial.print(distance);
-    Serial.println(" cm");
-  }
-  // An second independent task to test that functionality works in parallel
-  if (millis() - lastInteractionReadingTime >= INTERACTION_INTERVAL_MS) {
-    lastInteractionReadingTime = millis(); // Update the timer
-
-    float distance = readUltrasonicDistance(INTERACTION_SENSOR);
-    Serial.print("Interaction Distance: ");
-    Serial.print(distance);
-    Serial.println(" cm");
-  }
+  
+  // Check for user approach and interaction
+  userDetection(); 
 
 }
 
@@ -132,4 +128,48 @@ float readUltrasonicDistance(SensorType sensor) {
   float distance = (duration * SPEED_OF_SOUND) / 2; // Convert to cm
 
   return distance;
+}
+/** 
+ * @brief  Determines if user is approaching or within interaction range.
+ * 
+ * @details This function uses the readUltrasonicDistance() to determine if the 
+ * user is approaching and then if they lean within interaction range.
+ * . 
+ */
+void userDetection() {
+    if (millis() - userDetectTime < SAMPLING_INTERVAL_MS) {
+        return; // Not time to sample yet
+    }
+    userDetectTime = millis(); // Update the timer
+
+    // Read the sensors once at the beginning of the check
+    float approachDistance = readUltrasonicDistance(APPROACH_SENSOR);
+    float interactionDistance = readUltrasonicDistance(INTERACTION_SENSOR);
+
+    // User detection state machine
+    switch (currentState) {
+        case NO_USER:
+            if (approachDistance <= APPROACH_THRESHOLD_CM) {
+                Serial.println("event:user_approach_start");
+                currentState = USER_APPROACHING;
+            }
+            break;
+
+        case USER_APPROACHING:
+            if (interactionDistance <= INTERACTION_THRESHOLD_CM) {
+                Serial.println("event:user_interaction_start");
+                currentState = USER_INTERACTING;
+            } else if (approachDistance > APPROACH_THRESHOLD_CM) {
+                Serial.println("event:user_approach_end");
+                currentState = NO_USER;
+            }
+            break;
+
+        case USER_INTERACTING:
+            if (interactionDistance > INTERACTION_THRESHOLD_CM) {
+                Serial.println("event:user_interaction_end");
+                currentState = USER_APPROACHING;
+            }
+            break;
+    }
 }
