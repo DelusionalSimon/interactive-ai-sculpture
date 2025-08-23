@@ -18,6 +18,10 @@ from scipy.io.wavfile import write
 from pathlib import Path
 import os
 import whisper
+import warnings
+
+# Suppress the "FP16 is not supported on CPU; using FP32 instead" warning from Whisper
+warnings.filterwarnings("ignore", category=UserWarning)
 
 
 # -------------[ CONFIGURATION ]-------------
