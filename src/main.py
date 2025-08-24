@@ -20,6 +20,7 @@ import whisper
 # Internal module imports
 from voice_transcription import record_audio, transcribe_audio
 from sentiment_analysis import analyze_sentiment
+from language_synthesis import get_llm_response
 
 # import configuration settings
 from config import WHISPER_MODEL
@@ -47,8 +48,12 @@ def ai_pipeline():
     # Step 2: Analyze sentiment
     sentiment_score = analyze_sentiment(user_input)
     print(f"Sentiment score: {sentiment_score}")
-    
+    #TODO:  create a function to convert sentiment score to movement state
+    #       that gets sent to the firmware over serial.
+
     # Step 3: Get LLM reply
+    ai_reply = get_llm_response(user_input)
+    print(f"AI reply: {ai_reply}")
 
     # Step 4: Synthesize and play voice reply
 
