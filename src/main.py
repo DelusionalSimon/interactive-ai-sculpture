@@ -14,21 +14,47 @@
 This software is released under the MIT License.
 See the LICENSE file in the project root for the full license text.
 """
+# TODO: For the MVP, the AI models are initialized directly in this script.
+#       For a future, more robust version, this initialization logic should be
+#       encapsulated within the respective handler modules to improve modularity
+#       and create a cleaner separation of concerns.
+
 # -------------[ LIBRARIES ]-------------
+import os
+from pathlib import Path
 import whisper
+from piper import PiperVoice
 
 # Internal module imports
 from voice_transcription import record_audio, transcribe_audio
 from sentiment_analysis import analyze_sentiment
 from language_synthesis import get_llm_response
+from voice_synthesis import synthesize_speech
 
 # import configuration settings
-from config import WHISPER_MODEL
+from config import WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH
 
 # -------------[ INITIALIZATION ]-------------
+# Initialize the Whisper model
 print("Loading Whisper model...")
 model = whisper.load_model(WHISPER_MODEL)
 print("Model loaded.")
+
+# form the proper paths for piper model and config
+root_dir = Path(__file__).parent.parent
+piper_model_full_path = root_dir / MODEL_ONNX_PATH
+piper_config_full_path = root_dir / MODEL_JSON_PATH
+
+# form the proper path for output directory
+output_wav_full_path = root_dir / OUTPUT_WAV_PATH
+# ensure output directory exists
+os.makedirs(output_wav_full_path.parent, exist_ok=True)
+
+# Initialize the Piper voice model
+print("Loading Piper model...")
+piper_voice = PiperVoice.load(  model_path=piper_model_full_path, 
+                                config_path=piper_config_full_path)
+print("Piper model loaded.")
 
 
 
@@ -56,6 +82,11 @@ def ai_pipeline():
     print(f"AI reply: {ai_reply}")
 
     # Step 4: Synthesize and play voice reply
+    synthesize_speech(ai_reply, str(output_wav_full_path), piper_voice)
+    print("Playing synthesized speech...")
+    # Play the synthesized audio using ffplay (part of FFmpeg)
+    os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {output_wav_full_path}")
+
 
     # TODO: Add logic to connect back to the Arduino
 

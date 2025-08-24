@@ -38,25 +38,9 @@ try:
 except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
     raise EnvironmentError("espeak-ng is not installed or not found in PATH. Please install espeak-ng properly to use Piper.")
 
-# -------------[ INITIALIZATION ]-------------
-# form the proper paths for piper model and config
-root_dir = Path(__file__).parent.parent
-piper_model_full_path = root_dir / MODEL_ONNX_PATH
-piper_config_full_path = root_dir / MODEL_JSON_PATH
-
-# form the proper path for output directory
-output_wav_full_path = root_dir / OUTPUT_WAV_PATH
-# ensure output directory exists
-os.makedirs(output_wav_full_path.parent, exist_ok=True)
-
-print("Loading Piper model...")
-piper_voice = PiperVoice.load(  model_path=piper_model_full_path, 
-                                config_path=piper_config_full_path)
-print("Piper model loaded.")
-
 
 # -------------[ FUNCTIONS ]-------------
-def synthesize_speech(text: str, output_path: str):
+def synthesize_speech(text: str, output_path: str, piper_voice: PiperVoice) -> None:
     """
     @brief Synthesizes speech from text and saves it to a WAV file.
     
@@ -79,6 +63,23 @@ if __name__ == "__main__":
     
     text_to_synthesize = sys.argv[1]
     
+    # form the proper paths for piper model and config
+    root_dir = Path(__file__).parent.parent
+    piper_model_full_path = root_dir / MODEL_ONNX_PATH
+    piper_config_full_path = root_dir / MODEL_JSON_PATH
+
+    # form the proper path for output directory
+    output_wav_full_path = root_dir / OUTPUT_WAV_PATH
+    # ensure output directory exists
+    os.makedirs(output_wav_full_path.parent, exist_ok=True)
+
+    # Initialize the Piper voice model
+    print("Loading Piper model...")
+    piper_voice = PiperVoice.load(  model_path=piper_model_full_path, 
+                                    config_path=piper_config_full_path)
+    print("Piper model loaded.")
+
+    #synthesize the speech and save to file
     print("Synthesizing speech...")
-    synthesize_speech(text_to_synthesize, str(output_wav_full_path))
+    synthesize_speech(text_to_synthesize, str(output_wav_full_path, piper_voice))
     
