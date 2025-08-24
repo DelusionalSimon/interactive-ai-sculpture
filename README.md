@@ -6,6 +6,10 @@ A real-time interactive installation using Natural Language Processing (NLP), a 
 
 ---
 
+## Prerequisites
+
+FFmpeg is required and must be in the system's PATH for the Whisper module that handles transcription to work.
+
 ## Core Objective & Technical Challenge
 
 The primary technical objective of this project is to design, build, and deploy a robust, standalone system capable of real-time interaction with the public. The system must analyze spoken user input and translate semantic and emotional data into dynamic physical outputs through mechatronics and generated speech.
