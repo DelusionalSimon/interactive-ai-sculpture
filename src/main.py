@@ -19,6 +19,7 @@ import whisper
 
 # Internal module imports
 from voice_transcription import record_audio, transcribe_audio
+from sentiment_analysis import analyze_sentiment
 
 # import configuration settings
 from config import WHISPER_MODEL
@@ -44,7 +45,9 @@ def ai_pipeline():
     print(f"User said: {user_input}")
 
     # Step 2: Analyze sentiment
-
+    sentiment_score = analyze_sentiment(user_input)
+    print(f"Sentiment score: {sentiment_score}")
+    
     # Step 3: Get LLM reply
 
     # Step 4: Synthesize and play voice reply
