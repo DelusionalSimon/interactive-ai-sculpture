@@ -6,6 +6,26 @@ A real-time interactive installation using Natural Language Processing (NLP), a 
 
 ---
 
+## Prerequisites
+
+### FFmpeg 
+
+FFmpeg is required and must be in the system's PATH variable for the Whisper module that handles transcription to work.
+
+### eSpeak NG
+
+eSpeak NG is required and must be in the system's PATH variable for the Piper TTS to handle voice generation.
+
+### API Keys
+
+This project relies on the Groq API for its language model. To run the project, you must:
+
+1. Create a Groq account and obtain an API key.
+2. Create a file named `.env` in the root of the project.
+3. Add your API key to the file in the following format:
+
+`GROQ_API_KEY="your_api_key_here"`
+
 ## Core Objective & Technical Challenge
 
 The primary technical objective of this project is to design, build, and deploy a robust, standalone system capable of real-time interaction with the public. The system must analyze spoken user input and translate semantic and emotional data into dynamic physical outputs through mechatronics and generated speech.
