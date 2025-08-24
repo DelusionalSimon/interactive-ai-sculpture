@@ -27,6 +27,9 @@ import sys
 from groq import Groq
 from dotenv import load_dotenv
 
+# import configuration settings
+from config import LLM_MODEL, LLM_PROMPT
+
 # load environment variables from .env file
 load_dotenv()
 
@@ -60,14 +63,14 @@ def get_llm_response(prompt: str) -> str:
     @param prompt The user's input string.
     @return The generated response text as a string.
     """
+    # Create a copy of the prompt to avoid modifying the original list
+    messages = LLM_PROMPT.copy()
+    messages[0]["content"] = prompt
+
+    # Send the request to the Groq API
     chat_completion = client.chat.completions.create(
-        messages=[
-            {
-                "role": "user",
-                "content": prompt,
-            }
-        ],
-        model="llama-3.1-8b-instant", # Or another model like "llama-3.3-70b-versatile"
+        messages = messages,
+        model = LLM_MODEL
     )
     return chat_completion.choices[0].message.content
 

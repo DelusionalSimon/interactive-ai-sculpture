@@ -13,8 +13,9 @@
 This software is released under the MIT License.
 See the LICENSE file in the project root for the full license text.
 """
-# -------------[ VOICE TRANSCRIPTION ]-------------
+#TODO: add type hints to all variables and constants.
 
+# -------------[ VOICE TRANSCRIPTION ]-------------
 # Audio recording settings
 SAMPLE_RATE = 16000     # Whisper requires 16kHz sample rate
 DURATION = 5            # Recording duration in seconds
@@ -24,9 +25,15 @@ RECORDING_FILENAME = "temp_recording.wav"
 # Whisper model settings
 WHISPER_MODEL = "base.en" # Let's use a smaller model for faster processing during testing
 
-# -------------[ SENTIMENT ANALYSIS ]-------------
-
 # -------------[ LANGUAGE SYNTHESIS ]-------------
+LLM_MODEL = "llama-3.1-8b-instant" # Or another model like "llama-3.3-70b-versatile"
+LLM_PROMPT = [
+    {
+        "role": "user",
+        "content": "{prompt}"
+    }
+    # TODO: Add system prompt or other roles
+]
 
 # - ------------[ VOICE SYNTHESIS ]-------------
 
