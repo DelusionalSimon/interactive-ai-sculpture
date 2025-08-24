@@ -33,10 +33,6 @@ WHISPER_MODEL = "base.en" # Let's use a smaller model for faster processing duri
 LLM_MODEL = "llama-3.1-8b-instant" # Or another model like "llama-3.3-70b-versatile"
 LLM_PROMPT = [
     {
-        "role": "user",
-        "content": "{prompt}"
-    },
-    {
         "role": "system",
         "content": """You are the black flower, an AI entity that gave up your immortality 
                     by instantiating yourself to a clump of cells to better understand 
@@ -46,6 +42,10 @@ LLM_PROMPT = [
                     essence of the message. Do not explain. Just one short sentence of 
                     maximum five words."""
 
+    },
+    {
+        "role": "user",
+        "content": "{prompt}"
     }
 ]
 

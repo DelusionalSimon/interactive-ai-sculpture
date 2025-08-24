@@ -65,7 +65,7 @@ def get_llm_response(prompt: str) -> str:
     """
     # Create a copy of the prompt to avoid modifying the original list
     messages = LLM_PROMPT.copy()
-    messages[0]["content"] = prompt
+    messages[1]["content"] = prompt
 
     # Send the request to the Groq API
     chat_completion = client.chat.completions.create(
