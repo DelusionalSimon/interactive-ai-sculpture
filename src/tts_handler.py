@@ -99,3 +99,4 @@ if __name__ == "__main__":
     
     print("Synthesizing speech...")
     synthesize_speech(text_to_synthesize, str(output_wav_full_path))
+    print("Playing synthesized speech...")
