@@ -50,9 +50,11 @@ LLM_PROMPT = [
 ]
 
 # - ------------[ VOICE SYNTHESIS ]-------------
+# What model to use for Piper
+MODEL_NAME = "en_GB-semaine-medium"
+
 # Piper model paths (relative to root directory)
 MODEL_DIR = "models/piper"
-MODEL_NAME = "en_GB-semaine-medium"
 MODEL_ONNX_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx")
 MODEL_JSON_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx.json")
 
