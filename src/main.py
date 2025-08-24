@@ -15,6 +15,18 @@ This software is released under the MIT License.
 See the LICENSE file in the project root for the full license text.
 """
 # -------------[ LIBRARIES ]-------------
+import whisper
+
+# Internal module imports
+from voice_transcription import record_audio, transcribe_audio
+
+# import configuration settings
+from config import WHISPER_MODEL
+
+# -------------[ INITIALIZATION ]-------------
+print("Loading Whisper model...")
+model = whisper.load_model(WHISPER_MODEL)
+print("Model loaded.")
 
 
 
@@ -27,6 +39,9 @@ def ai_pipeline():
              to providing a final AI-generated text reply.
     """
     # Step 1: Record audio and transcribe
+    audio_path = record_audio()
+    user_input = transcribe_audio(str(audio_path), model)
+    print(f"User said: {user_input}")
 
     # Step 2: Analyze sentiment
 

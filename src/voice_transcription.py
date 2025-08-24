@@ -34,12 +34,6 @@ except (subprocess.CalledProcessError, FileNotFoundError):
 warnings.filterwarnings("ignore", category=UserWarning)
 
 
-# -------------[ INITIALIZATION ]-------------
-print("Loading Whisper model...")
-model = whisper.load_model(WHISPER_MODEL)
-print("Model loaded.")
-
-
 # -------------[ FUNCTIONS ]-------------
 def record_audio() -> Path:
     """
@@ -102,6 +96,11 @@ def transcribe_audio(path: str, model) -> str:
 
 # -------------[ MAIN EXECUTION FOR TESTING ]-------------
 if __name__ == "__main__":
+    # Initialize the Whisper model
+    print("Loading Whisper model...")
+    model = whisper.load_model(WHISPER_MODEL)
+    print("Model loaded.")
+    
     audio_file_path = record_audio()
     print(f"Audio saved to: {audio_file_path}")
     transcription = transcribe_audio(str(audio_file_path), model)
