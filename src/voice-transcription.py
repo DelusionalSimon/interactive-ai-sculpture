@@ -19,6 +19,13 @@ from pathlib import Path
 import os
 import whisper
 import warnings
+import subprocess
+
+# Check that ffmpeg is installed and in PATH
+try:
+        subprocess.run(["ffmpeg", "-version"], check=True, capture_output=True)
+except (subprocess.CalledProcessError, FileNotFoundError):
+    raise EnvironmentError("ffmpeg is not installed or not found in PATH. Please install ffmpeg to use Whisper.")
 
 # Suppress the "FP16 is not supported on CPU; using FP32 instead" warning from Whisper
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -99,6 +106,8 @@ def transcribe_audio(path: str, model) -> str:
     print("Temporary audio file deleted.")
     return transcription
 
+
+# -------------[ MAIN EXECUTION FOR TESTING ]-------------
 if __name__ == "__main__":
     audio_file_path = record_audio()
     print(f"Audio saved to: {audio_file_path}")
