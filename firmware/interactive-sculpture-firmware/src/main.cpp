@@ -246,6 +246,9 @@ float readUltrasonicDistance(SensorType sensor) {
  * 
  * @details This function uses the readUltrasonicDistance() to determine if the 
  * user is approaching and then if they lean within interaction range.
+ * It updates the userState accordingly and triggers state changesin the 
+ * movement state machine and sends serial events that are used by the host 
+ * computer to initiate AI interaction
  * . 
  */
 void userDetection() {
@@ -264,6 +267,7 @@ void userDetection() {
             if (approachDistance <= APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_start");
                 userState = USER_APPROACHING;
+                setMovementState(LISTEN);
             }
             break;
 
@@ -274,6 +278,7 @@ void userDetection() {
             } else if (approachDistance > APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_end");
                 userState = NO_USER;
+                setMovementState(IDLE);
             }
             break;
 
