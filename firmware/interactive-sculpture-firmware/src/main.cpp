@@ -29,7 +29,13 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 float currentPhases[NUM_LEAVES];
 
 // Set up state machone for movement
-MovementState currentState = IDLE; // Start in IDLE state
+MovementState movementState = IDLE; // Start in IDLE state
+
+// Set up state machine for user detection
+UserState userState = NO_USER;
+
+// Concurrency variables for each separate task
+unsigned long userDetectTime = 0;
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
 void moveLeaf(float phase, int leafIndex);
@@ -37,12 +43,20 @@ void initializeLeafPositions();
 void updateLeafMovement();
 void setMovementState(MovementState state);
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
+float readUltrasonicDistance(SensorType sensor);
+void userDetection();
 
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
 
   // Initialize serial communication for debugging
-  Serial.begin(9600);
+  Serial.begin(BAUD_RATE);
+
+  // Set the pin modes for the ultrasonic sensors
+  pinMode(APPROACH_TRIG_PIN, OUTPUT);
+  pinMode(APPROACH_ECHO_PIN, INPUT);
+  pinMode(INTERACTION_TRIG_PIN, OUTPUT);
+  pinMode(INTERACTION_ECHO_PIN, INPUT);
     
   // Initialize the PCA9685 servo driver.
   pwm.begin();
@@ -61,8 +75,14 @@ void setup() {
 
 //-------------[ MAIN LOOP ]-------------
 void loop() {
-  
+
+    // Continuously update leaf movements
     updateLeafMovement();
+
+    // Check for user approach and interaction
+    userDetection(); 
+
+    //TODO: Add serial command handling here in the future
 
 }
 
@@ -125,7 +145,7 @@ void updateLeafMovement() {
   MovementSet activeMovement;
 
   // Select the correct movement parameters based on the current state
-  switch (currentState) {
+  switch (movementState) {
       case LISTEN:
           activeMovement = LISTEN_MOVEMENT;
           break;
@@ -141,9 +161,9 @@ void updateLeafMovement() {
     moveLeaf(currentPhases[i], i);
 
     // Increment the phase for the current leaf
-    currentPhases[i] += activeMovement.speed;
+    currentPhases[i] += (LEAF_BASELINES[i].speed*activeMovement.speedFactor);
 
-    // Reset the phase of the leaf if it exceeds 2*PI to avoid overflow
+    // Reset the phase of the leaf if it exceeds 2 * PI to avoid overflow
     if (currentPhases[i] >= 2 * PI) {
       currentPhases[i] -= 2 * PI;
     }
@@ -161,18 +181,112 @@ void updateLeafMovement() {
  */
 void setMovementState(MovementState state) {
   // Set the current state to the new state
-  currentState = state;  
+  movementState = state;  
 }
 
  /**
  * @brief Re-maps a number from one range to another using floating-point math.
+ * 
  * @param x The number to map.
  * @param in_min The lower bound of the value's current range.
  * @param in_max The upper bound of the value's current range.
  * @param out_min The lower bound of the value's target range.
  * @param out_max The upper bound of the value's target range.
+ * 
  * @return The mapped value as a float.
  */
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+/** 
+ * @brief  Reads distance from the ultrasonic sensor.
+ * 
+ * @details This function triggers the selected ultrasonic sensor and reads 
+ * the echo time to calculate the distance to the nearest object in centimeters.
+ * 
+ * @param   sensor The sensor type to read from.
+ * 
+ * @return  Distance in centimeters as a float. 
+ */
+float readUltrasonicDistance(SensorType sensor) {
+  int triggerPin;
+  int echoPin;
+
+  // Select the correct pins based on the sensor type
+  switch (sensor) {
+    case APPROACH_SENSOR:
+      triggerPin = APPROACH_TRIG_PIN;
+      echoPin = APPROACH_ECHO_PIN;
+      break; // The 'break' is important!
+
+    case INTERACTION_SENSOR:
+      triggerPin = INTERACTION_TRIG_PIN;
+      echoPin = INTERACTION_ECHO_PIN;
+      break;
+  }
+  // Clear the trigger pin
+  digitalWrite(triggerPin, LOW);
+  delayMicroseconds(ULTRASONIC_CLEAR_PULSE);
+
+  // Set the trigger pin high for a specified pulse duration
+  digitalWrite(triggerPin, HIGH);
+  delayMicroseconds(ULTRASONIC_TRIGGER_PULSE);
+  digitalWrite(triggerPin, LOW);
+
+  // Read the echo pin and calculate the distance
+  long duration = pulseIn(echoPin, HIGH);
+  float distance = (duration * SPEED_OF_SOUND) / 2; // Convert to cm
+
+  return distance;
+}
+
+/** 
+ * @brief  Determines if user is approaching or within interaction range.
+ * 
+ * @details This function uses the readUltrasonicDistance() to determine if the 
+ * user is approaching and then if they lean within interaction range.
+ * It updates the userState accordingly and triggers state changesin the 
+ * movement state machine and sends serial events that are used by the host 
+ * computer to initiate AI interaction
+ * . 
+ */
+void userDetection() {
+    if (millis() - userDetectTime < SAMPLING_INTERVAL_MS) {
+        return; // Not time to sample yet
+    }
+    userDetectTime = millis(); // Update the timer
+
+    // Read the sensors once at the beginning of the check
+    float approachDistance = readUltrasonicDistance(APPROACH_SENSOR);
+    float interactionDistance = readUltrasonicDistance(INTERACTION_SENSOR);
+
+    // User detection state machine
+    switch (userState) {
+        case NO_USER:
+            if (approachDistance <= APPROACH_THRESHOLD_CM) {
+                Serial.println("event:user_approach_start");
+                userState = USER_APPROACHING;
+                setMovementState(LISTEN);
+            }
+            break;
+
+        case USER_APPROACHING:
+            if (interactionDistance <= INTERACTION_THRESHOLD_CM) {
+                Serial.println("event:user_interaction_start");
+                userState = USER_INTERACTING;
+            } else if (approachDistance > APPROACH_THRESHOLD_CM) {
+                Serial.println("event:user_approach_end");
+                userState = NO_USER;
+                setMovementState(IDLE);
+            }
+            break;
+
+        case USER_INTERACTING:
+            if (interactionDistance > INTERACTION_THRESHOLD_CM) {
+                Serial.println("event:user_interaction_end");
+                userState = USER_APPROACHING;
+            }
+            break;
+    }
 }

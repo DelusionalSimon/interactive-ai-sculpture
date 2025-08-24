@@ -18,9 +18,13 @@
 #define CONFIG_H
 
 //-------------[ HARDWARE PINS & ADDRESSES ]-------------
-#define NUM_LEAVES 1 // Number of leaves in the sculpture
+// Serial communication baud rate
+#define BAUD_RATE 9600 
 
-// define the pin positions for the leaves on the PCA9685 servo driver
+// Number of leaves in the sculpture
+#define NUM_LEAVES 1 
+
+// Define the pin positions for the leaves on the PCA9685 servo driver
 struct Leaf {
     int servoPin; // Pin connected to the servo motor
 };
@@ -28,13 +32,34 @@ const Leaf LEAF_PINS[NUM_LEAVES] = {
     {0}, // Leaf 1 servo pin
 };
 
-// TODO: Add other servo and sensor pins here
+// Define Ultrasonic sensor pins
+// Approach sensor
+#define APPROACH_TRIG_PIN 2
+#define APPROACH_ECHO_PIN 3
+// Interaction sensor
+#define INTERACTION_TRIG_PIN 4
+#define INTERACTION_ECHO_PIN 5
 
 //-------------[ SERVO CALIBRATION ]-------------
 #define PULSEWIDTH_MIN 500
 #define PULSEWIDTH_MAX 2500
 #define SERVO_MAX_ANGLE 270
 #define SERVO_FREQUENCY 50
+
+// -------------[ ULTRASONIC SENSOR CALIBRATION ]-------------
+// An enum to create clear, readable names for the sensors
+enum SensorType {
+  APPROACH_SENSOR,
+  INTERACTION_SENSOR
+};
+
+// Ultrasonic sensor timing and conversion
+const int ULTRASONIC_CLEAR_PULSE = 2; // in microseconds
+const int ULTRASONIC_TRIGGER_PULSE = 10; // in microseconds
+const float SPEED_OF_SOUND = 0.0343; // cm per microsecond
+
+// Sampling Interval for the sensors
+const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
 
 //-------------[ PHYSICAL CONSTRAINTS ]-------------
 // Define the safe movement range for each of the leaves
@@ -47,6 +72,10 @@ const AngleRange LEAF_RANGES[NUM_LEAVES] = {
 };
 //TODO: Add more leaves with their ranges 
 
+// Sensor threshold distances in cm
+#define APPROACH_THRESHOLD_CM 30.0 
+#define INTERACTION_THRESHOLD_CM 10.0
+
 //-------------[ MOVEMENT SET CONFIGURATIONS ]-------------
 // Declare the array of current phases for each leaf.
 extern float currentPhases[];
@@ -58,14 +87,20 @@ struct BaselineMovement {
 };
 // Define the baseline movement for each leaf
 const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
-    {0.01, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
+    {0.001, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
     // TODO: Add more leaves
 };
 
 
 //-------------[ STATE MACHINE DEFINITION ]-------------
+// An enum to create clear, readable names for the user position states
+enum UserState {
+    NO_USER,
+    USER_APPROACHING,
+    USER_INTERACTING
+};
 
-// An enum to give the states clear, readable names.
+// An enum to give the movement states clear, readable names.
 enum MovementState {
     IDLE,       // Default state when the sculpture is not interacting
     LISTEN,     // State when the sculpture is listening for input 
@@ -75,10 +110,10 @@ enum MovementState {
 struct MovementSet {
     float amplitude;    // How wide the movement is
     float centerAngle;  // The midpoint of the movement
-    float speed;        // The speed of the sine wave (times baseline speed)
+    float speedFactor;  // The speed of the sine wave (times baseline speed)
 };
-const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 0.015};
-const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.02};
+const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 2};
+const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.5};
 // TODO: Add more movement sets
 
 #endif // CONFIG_H
