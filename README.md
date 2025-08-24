@@ -12,6 +12,10 @@ A real-time interactive installation using Natural Language Processing (NLP), a 
 
 FFmpeg is required and must be in the system's PATH variable for the Whisper module that handles transcription to work.
 
+### eSpeak NG
+
+eSpeak NG is required and must be in the system's PATH variable for the Piper TTS to handle voice generation.
+
 ### API Keys
 
 This project relies on the Groq API for its language model. To run the project, you must:
