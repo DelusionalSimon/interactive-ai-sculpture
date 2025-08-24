@@ -15,6 +15,10 @@ See the LICENSE file in the project root for the full license text.
 """
 #TODO: add type hints to all variables and constants.
 
+# -------------[ LIBRARIES ]-------------
+from piper import SynthesisConfig
+import os
+
 # -------------[ VOICE TRANSCRIPTION ]-------------
 # Audio recording settings
 SAMPLE_RATE = 16000     # Whisper requires 16kHz sample rate
@@ -43,8 +47,26 @@ LLM_PROMPT = [
                     maximum five words."""
 
     }
-    # TODO: Add system prompt or other roles
 ]
 
 # - ------------[ VOICE SYNTHESIS ]-------------
+# Piper model paths (relative to root directory)
+MODEL_DIR = "models/piper"
+MODEL_NAME = "en_GB-semaine-medium"
+MODEL_ONNX_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx")
+MODEL_JSON_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx.json")
+
+# Path to save synthesized audio
+OUTPUT_WAV_DIR = "output"
+OUTPUT_WAV_FILE = "output_speech.wav"
+OUTPUT_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, OUTPUT_WAV_FILE)
+
+# Configure Piper synthesis parameters
+SYN_CONFIG = SynthesisConfig(
+    volume = 1,   
+    length_scale = 1.0, # Speech speed (1.0 = normal, >1.0 = slower)
+    noise_scale = 1.0,  # Audio variation
+    noise_w_scale = 1.0,  # Speaking variation
+    normalize_audio = False, # use raw audio from voice
+)
 

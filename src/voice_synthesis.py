@@ -26,7 +26,10 @@ import sys
 import subprocess
 import wave
 from pathlib import Path
-from piper import PiperVoice, SynthesisConfig
+from piper import PiperVoice
+
+# import configuration settings
+from config import MODEL_ONNX_PATH, MODEL_JSON_PATH, OUTPUT_WAV_PATH, SYN_CONFIG 
 
 
 # Check that eSpeak NG is installed and in PATH
@@ -34,27 +37,6 @@ try:
     subprocess.run(["espeak-ng", "--help"], check=True, capture_output=True, timeout=5)
 except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
     raise EnvironmentError("espeak-ng is not installed or not found in PATH. Please install espeak-ng properly to use Piper.")
-
-# -------------[ CONFIGURATION ]-------------
-# Piper model paths (relative to root directory)
-MODEL_DIR = "models/piper"
-MODEL_NAME = "en_GB-semaine-medium"
-MODEL_ONNX_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx")
-MODEL_JSON_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx.json")
-
-# Path to save synthesized audio
-OUTPUT_WAV_DIR = "output"
-OUTPUT_WAV_FILE = "output_speech.wav"
-OUTPUT_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, OUTPUT_WAV_FILE)
-
-# Configure Piper synthesis parameters
-syn_config = SynthesisConfig(
-    volume = 1,   
-    length_scale = 2.0, # Speech speed (1.0 = normal, >1.0 = slower)
-    noise_scale = 1.0,  # Audio variation
-    noise_w_scale = 1.0,  # Speaking variation
-    normalize_audio = False, # use raw audio from voice
-)
 
 # -------------[ INITIALIZATION ]-------------
 # form the proper paths for piper model and config
@@ -86,7 +68,7 @@ def synthesize_speech(text: str, output_path: str):
     @param output_path The file path to save the resulting WAV file to.
     """
     with wave.open(output_path, "wb") as wav_file:
-        piper_voice.synthesize_wav(text, wav_file, syn_config)
+        piper_voice.synthesize_wav(text, wav_file, SYN_CONFIG)
     print(f"Speech synthesized and saved to {output_path}")
 
 # -------------[ MAIN EXECUTION FOR TESTING ]-------------
@@ -99,4 +81,4 @@ if __name__ == "__main__":
     
     print("Synthesizing speech...")
     synthesize_speech(text_to_synthesize, str(output_wav_full_path))
-    print("Playing synthesized speech...")
+    
