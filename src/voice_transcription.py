@@ -1,5 +1,5 @@
 """
-@file       voice-transcription.py
+@file       voice_transcription.py
 @author     Simon Håkansson
 @date       2025-08-24
 @brief      Standalone Python script for the voice transcription functions for the black flower.
@@ -21,6 +21,9 @@ import whisper
 import warnings
 import subprocess
 
+# import configuration settings
+from config import SAMPLE_RATE, DURATION, OUTPUT_FOLDER, RECORDING_FILENAME, WHISPER_MODEL
+
 # Check that ffmpeg is installed and in PATH
 try:
         subprocess.run(["ffmpeg", "-version"], check=True, capture_output=True)
@@ -29,22 +32,6 @@ except (subprocess.CalledProcessError, FileNotFoundError):
 
 # Suppress the "FP16 is not supported on CPU; using FP32 instead" warning from Whisper
 warnings.filterwarnings("ignore", category=UserWarning)
-
-
-# -------------[ CONFIGURATION ]-------------
-# Audio recording settings
-SAMPLE_RATE = 16000     # Whisper requires 16kHz sample rate
-DURATION = 5            # Recording duration in seconds
-OUTPUT_FOLDER = "output"
-RECORDING_FILENAME = "temp_recording.wav"
-
-# Whisper model settings
-WHISPER_MODEL = "base.en" # Let's use a smaller model for faster processing during testing
-
-# -------------[ INITIALIZATION ]-------------
-print("Loading Whisper model...")
-model = whisper.load_model(WHISPER_MODEL)
-print("Model loaded.")
 
 
 # -------------[ FUNCTIONS ]-------------
@@ -109,6 +96,11 @@ def transcribe_audio(path: str, model) -> str:
 
 # -------------[ MAIN EXECUTION FOR TESTING ]-------------
 if __name__ == "__main__":
+    # Initialize the Whisper model
+    print("Loading Whisper model...")
+    model = whisper.load_model(WHISPER_MODEL)
+    print("Model loaded.")
+    
     audio_file_path = record_audio()
     print(f"Audio saved to: {audio_file_path}")
     transcription = transcribe_audio(str(audio_file_path), model)

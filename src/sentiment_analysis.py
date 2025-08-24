@@ -1,5 +1,5 @@
 """
-@file       sentiment_analyzer.py
+@file       sentiment_analysis.py
 @author     Simon Håkansson
 @date       2025-08-24
 @brief      Standalone Python script for sentiment analysis using VADER.
