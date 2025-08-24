@@ -24,6 +24,7 @@ import os
 from pathlib import Path
 import whisper
 from piper import PiperVoice
+import serial
 
 # Internal module imports
 from voice_transcription import record_audio, transcribe_audio
@@ -32,7 +33,7 @@ from language_synthesis import get_llm_response
 from voice_synthesis import synthesize_speech
 
 # import configuration settings
-from config import WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH
+from config import WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, SERIAL_PORT, BAUD_RATE
 
 # -------------[ INITIALIZATION ]-------------
 # Initialize the Whisper model
@@ -92,11 +93,33 @@ def ai_pipeline():
 
     print("Interaction complete.")
 
+def main_loop():
+    """
+    @brief The main loop to listen for serial events and trigger the AI pipeline.
+    
+    @details This function will contain the main loop logic to listen for
+             serial events from the Arduino and trigger the AI conversation
+             pipeline accordingly.
+    """
+    try:
+        with serial.Serial(SERIAL_PORT , BAUD_RATE, timeout=1) as ser:
+                print(f"Connected to Arduino on {ser.portstr}")
+                while True:
+                    if ser.in_waiting > 0:
+                        line = ser.readline().decode('utf-8').strip()
+                        print(f"Received from Arduino: {line}")
+                        if line == "event:user_interaction_start":
+                            print("User interaction event received. Starting AI pipeline.")
+                            ai_pipeline()
+
+    except serial.SerialException as e:
+        print(f"Serial Error: {e}")
+    except KeyboardInterrupt:
+        print("Exiting...")
+
 
 # -------------[ MAIN EXECUTION ]-------------
 if __name__ == "__main__":
-    # TODO: Add logic here to listen for a serial event from the Arduino
-    
-    
-    print("Starting AI Conversation Loop...")
-    ai_pipeline()
+            
+    print("Starting Main Loop...")
+    main_loop()

@@ -18,6 +18,9 @@ See the LICENSE file in the project root for the full license text.
 # -------------[ LIBRARIES ]-------------
 from piper import SynthesisConfig
 import os
+# -------------[ SERIAL CONNECTION ]-------------
+SERIAL_PORT = "COM7"  # Adjust this to your Arduino's serial port
+BAUD_RATE = 9600 # Match the baud rate in config.h
 
 # -------------[ VOICE TRANSCRIPTION ]-------------
 # Audio recording settings
