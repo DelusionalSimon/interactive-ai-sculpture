@@ -8,7 +8,19 @@ A real-time interactive installation using Natural Language Processing (NLP), a 
 
 ## Prerequisites
 
-FFmpeg is required and must be in the system's PATH for the Whisper module that handles transcription to work.
+### FFmpeg 
+
+FFmpeg is required and must be in the system's PATH variable for the Whisper module that handles transcription to work.
+
+### API Keys
+
+This project relies on the Groq API for its language model. To run the project, you must:
+
+1. Create a Groq account and obtain an API key.
+2. Create a file named `.env` in the root of the project.
+3. Add your API key to the file in the following format:
+
+`GROQ_API_KEY="your_api_key_here"`
 
 ## Core Objective & Technical Challenge
 
