@@ -1,5 +1,5 @@
 """
-@file        tts_handler.py
+@file        voice_synthesis.py
 @author      Simon Håkansson
 @date        2025-08-24
 @brief       Standalone Python script for handling voice synthesis using Piper.

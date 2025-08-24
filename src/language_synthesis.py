@@ -1,5 +1,5 @@
 """
-@file       llm_handler.py
+@file       language_synthesis.py
 @author     Simon Håkansson
 @date       2025-08-24
 @brief      Standalone Python script for handling LLM interactions using Groq.
