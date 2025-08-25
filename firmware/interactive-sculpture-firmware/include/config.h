@@ -22,7 +22,7 @@
 #define BAUD_RATE 9600 
 
 // Number of leaves in the sculpture
-#define NUM_LEAVES 1 
+#define NUM_LEAVES 2 
 
 // Define the pin positions for the leaves on the PCA9685 servo driver
 struct Leaf {
@@ -30,6 +30,7 @@ struct Leaf {
 };
 const Leaf LEAF_PINS[NUM_LEAVES] = {
     {0}, // Leaf 1 servo pin
+    {1},
 };
 
 // Define Ultrasonic sensor pins
@@ -69,6 +70,7 @@ const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
 };
 const AngleRange LEAF_RANGES[NUM_LEAVES] = {
     {45, 135}, // Leaf 1 range
+    {45, 135},
 };
 //TODO: Add more leaves with their ranges 
 
@@ -88,7 +90,8 @@ struct BaselineMovement {
 // Define the baseline movement for each leaf
 const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
     {0.001, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
-    // TODO: Add more leaves
+    {0.0015, 0.3},
+    
 };
 
 
@@ -102,9 +105,9 @@ enum UserState {
 
 // An enum to give the movement states clear, readable names.
 enum MovementState {
-    IDLE,       // Default state when the sculpture is not interacting
-    LISTEN,     // State when the sculpture is listening for input 
-    REACTING_POSITIVE,
+    IDLE,               // Default state when the sculpture is not interacting
+    LISTEN,             // State when the sculpture is listening for input 
+    REACTING_POSITIVE,  
     REACTING_NEGATIVE,
     REACTING_NEUTRAL
 };
