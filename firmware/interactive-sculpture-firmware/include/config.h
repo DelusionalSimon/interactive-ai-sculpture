@@ -104,6 +104,9 @@ enum UserState {
 enum MovementState {
     IDLE,       // Default state when the sculpture is not interacting
     LISTEN,     // State when the sculpture is listening for input 
+    REACTING_POSITIVE,
+    REACTING_NEGATIVE,
+    REACTING_NEUTRAL
 };
 
 // Define the movement sets for different states
@@ -112,8 +115,11 @@ struct MovementSet {
     float centerAngle;  // The midpoint of the movement
     float speedFactor;  // The speed of the sine wave (times baseline speed)
 };
-const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 2};
+const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 1};
 const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.5};
+const MovementSet POSITIVE_MOVEMENT = {25.0, 90, 2};
+const MovementSet NEGATIVE_MOVEMENT = {5, 135, 3};
+const MovementSet NEUTRAL_MOVEMENT = {20, 90, 1.5};
 // TODO: Add more movement sets
 
 #endif // CONFIG_H
