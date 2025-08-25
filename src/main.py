@@ -27,6 +27,7 @@ from pathlib import Path
 import whisper
 from piper import PiperVoice
 import serial
+import time
 
 # Internal module imports
 from voice_transcription import record_audio, transcribe_audio
@@ -37,7 +38,7 @@ from voice_synthesis import synthesize_speech
 # import configuration settings
 from config import ( WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, 
                     SERIAL_PORT, BAUD_RATE, SENTIMENT_TO_MOVEMENT_MAP, STANDARD_STATE,
-                    SENTIMENT_GOOD_THRESHOLD, SENTIMENT_BAD_THRESHOLD )
+                    SENTIMENT_GOOD_THRESHOLD, SENTIMENT_BAD_THRESHOLD, REACTION_TIMING)
 
 # -------------[ INITIALIZATION ]-------------
 # Initialize the Whisper model
@@ -99,7 +100,8 @@ def ai_pipeline(ser):
     #TODO: save all user inputs to list for final synthesis
 
     print("Interaction complete.")
-    # Send command for sculpture to go back to the base state
+    # Send command for sculpture to go back to the base state after it has reacted
+    time.sleep(REACTION_TIMING)
     command = STANDARD_STATE
     ser.write(command.encode('utf-8'))
     print(f"Sent to Arduino: {command}")

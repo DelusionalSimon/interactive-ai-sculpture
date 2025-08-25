@@ -24,6 +24,9 @@ import os
 SERIAL_PORT = "COM7"  # Adjust this to your Arduino's serial port
 BAUD_RATE = 9600 # Match the baud rate in config.h
 
+# time to hold reaction movement set before returning to idle, in seconds 
+REACTION_TIMING = 5
+
 # Sentiment to movement bridge
 SENTIMENT_TO_MOVEMENT_MAP = {
     "positive": "set_state:REACTING_POSITIVE",
