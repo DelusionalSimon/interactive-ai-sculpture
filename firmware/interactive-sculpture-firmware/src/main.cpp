@@ -45,6 +45,7 @@ void setMovementState(MovementState state);
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
 float readUltrasonicDistance(SensorType sensor);
 void userDetection();
+void readSerialCommands();
 
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
@@ -82,7 +83,8 @@ void loop() {
     // Check for user approach and interaction
     userDetection(); 
 
-    //TODO: Add serial command handling here in the future
+    // Listen for commands from the host computer
+    readSerialCommands();
 
 }
 
@@ -137,7 +139,7 @@ void initializeLeafPositions() {
  * @details This function uses the moveLeaf() function to move all leaves in
  * organic undulating paths and handles phase wrapping to prevent overflow.
  *
- * @todo    Add logic to handle different movement sets (e.g., dance, listen).
+ * @todo    Add logic to handle amplitude and centerAngle
  * 
  */
 void updateLeafMovement() {
@@ -149,6 +151,15 @@ void updateLeafMovement() {
       case LISTEN:
           activeMovement = LISTEN_MOVEMENT;
           break;
+      case REACTING_POSITIVE:
+          activeMovement = POSITIVE_MOVEMENT;
+          break;
+      case REACTING_NEGATIVE:
+          activeMovement = NEGATIVE_MOVEMENT;
+          break;
+      case REACTING_NEUTRAL:
+          activeMovement = NEUTRAL_MOVEMENT;
+          break;            
       case IDLE:
       default:
           activeMovement = IDLE_MOVEMENT;
@@ -208,6 +219,8 @@ float mapFloat(float x, float in_min, float in_max, float out_min, float out_max
  * @param   sensor The sensor type to read from.
  * 
  * @return  Distance in centimeters as a float. 
+ * 
+ * @todo change pulseIn() for a non-blocking read function like those found in NewPing
  */
 float readUltrasonicDistance(SensorType sensor) {
   int triggerPin;
@@ -288,5 +301,20 @@ void userDetection() {
                 userState = USER_APPROACHING;
             }
             break;
+    }
+}
+void readSerialCommands() {
+    if (Serial.available() > 0) {
+        String command = Serial.readStringUntil('\n');
+        
+        if (command == "set_state:REACTING_POSITIVE") {
+            setMovementState(REACTING_POSITIVE); 
+        } else if (command == "set_state:REACTING_NEGATIVE") {
+            setMovementState(REACTING_NEGATIVE); 
+        } else if (command == "set_state:REACTING_NEUTRAL") {
+            setMovementState(REACTING_NEUTRAL); 
+        } else if (command == "set_state:IDLE") {
+            setMovementState(IDLE); 
+        }
     }
 }

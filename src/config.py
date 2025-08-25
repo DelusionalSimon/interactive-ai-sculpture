@@ -19,6 +19,24 @@ See the LICENSE file in the project root for the full license text.
 from piper import SynthesisConfig
 import os
 
+# -------------[ LOGIC BRIDGE ]-------------
+# Serial connection
+SERIAL_PORT = "COM7"  # Adjust this to your Arduino's serial port
+BAUD_RATE = 9600 # Match the baud rate in config.h
+
+# time to hold reaction movement set before returning to idle, in seconds 
+REACTION_TIMING = 5
+
+# Sentiment to movement bridge
+SENTIMENT_TO_MOVEMENT_MAP = {
+    "positive": "set_state:REACTING_POSITIVE",
+    "negative": "set_state:REACTING_NEGATIVE",
+    "neutral":  "set_state:REACTING_NEUTRAL"
+}
+SENTIMENT_BAD_THRESHOLD = -0.1
+SENTIMENT_GOOD_THRESHOLD = 0.1
+STANDARD_STATE = "set_state:IDLE"
+
 # -------------[ VOICE TRANSCRIPTION ]-------------
 # Audio recording settings
 SAMPLE_RATE = 16000     # Whisper requires 16kHz sample rate
