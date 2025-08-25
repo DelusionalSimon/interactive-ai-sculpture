@@ -21,6 +21,9 @@ See the LICENSE file in the project root for the full license text.
 
 # TODO: Add function to handle final synthesis.
 
+# TODO: Add threading to make the ai loop run in parallel to enable the next todo
+# TODO: Make the recording run until the user leaves the interaction zone
+
 # -------------[ LIBRARIES ]-------------
 import os
 from pathlib import Path

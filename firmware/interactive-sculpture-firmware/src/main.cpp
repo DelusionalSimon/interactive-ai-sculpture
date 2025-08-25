@@ -139,7 +139,7 @@ void initializeLeafPositions() {
  * @details This function uses the moveLeaf() function to move all leaves in
  * organic undulating paths and handles phase wrapping to prevent overflow.
  *
- * @todo    Add logic to handle different movement sets (e.g., dance, listen).
+ * @todo    Add logic to handle amplitude and centerAngle
  * 
  */
 void updateLeafMovement() {
@@ -219,6 +219,8 @@ float mapFloat(float x, float in_min, float in_max, float out_min, float out_max
  * @param   sensor The sensor type to read from.
  * 
  * @return  Distance in centimeters as a float. 
+ * 
+ * @todo change pulseIn() for a non-blocking read function like those found in NewPing
  */
 float readUltrasonicDistance(SensorType sensor) {
   int triggerPin;

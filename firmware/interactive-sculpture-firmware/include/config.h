@@ -14,6 +14,9 @@
  * See the LICENSE file in the project root for the full license text.
  */
 
+// TODO: replace #define with const across the board 
+// TODO: add type hinting
+
 #ifndef CONFIG_H
 #define CONFIG_H
 
