@@ -38,7 +38,7 @@ UserState userState = NO_USER;
 unsigned long userDetectTime = 0;
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
-void moveLeaf(float phase, int leafIndex);
+void moveLeaf(float phase, int leafIndex, const MovementSet& movementSet);
 void initializeLeafPositions();
 void updateLeafMovement();
 void setMovementState(MovementState state);
@@ -91,23 +91,33 @@ void loop() {
   
 //-------------[ HELPER FUNCTIONS ]-------------
 /** 
- * @brief  Translates an animation phase into a physical servo position.
+ * @brief  Translates an animation phase and MovementSet into a physical servo position.
  *
  * @details This is a core utility function that takes a point in an animation cycle
  * (the phase) and maps it to a precise pulse width for a specific servo,
  * respecting the pre-defined safe movement range for that leaf.
+ * It uses a virtual range supplied in an input MovementSet to differentiate
+ * the midpoint and amplitude of each type of movement
  *
  * @param   phase The current phase of the sine wave for the leaf.
  * @param   leafIndex The index of the leaf to move.
+ * @param   movementSet The MovementSet currently active 
  * 
  */
-void moveLeaf(float phase, int leafIndex) {
+void moveLeaf(float phase, int leafIndex, const MovementSet& movementSet) {
   
   // Calculate the sine value for the current phase of this leaf
   float sinValue = sin(phase);
 
-  // Get the angle the leaf should have using float precision
-  float angle = mapFloat(sinValue, -1, 1, LEAF_RANGES[leafIndex].minAngle, LEAF_RANGES[leafIndex].maxAngle);
+  // Map the virtual center and amplitude directly to the physical safety range
+  float angle = mapFloat( movementSet.centerAngle + sinValue * movementSet.amplitude,
+                          VIRTUAL_MIN,
+                          VIRTUAL_MAX,
+                          LEAF_RANGES[leafIndex].minAngle,
+                          LEAF_RANGES[leafIndex].maxAngle );
+
+  // Safety net in case of floating point errors
+  angle = constrain(angle, LEAF_RANGES[leafIndex].minAngle, LEAF_RANGES[leafIndex].maxAngle);
 
   // Convert the angle to pulse width
   int pulseWidth = mapFloat(angle, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
@@ -118,16 +128,15 @@ void moveLeaf(float phase, int leafIndex) {
 }
 
 /**
- * @brief  Initializes the leaf positions based on their starting phases.
+ * @brief  Initializes the leaf positions based on their starting phases
+ * and the idle movement set.
  * 
  */
 void initializeLeafPositions() {
-  
-  for (int i = 0; i < NUM_LEAVES; i++) {
 
-    // Move the leaf to its initial position based on its baseline phase offset
-    moveLeaf(LEAF_BASELINES[i].phaseOffset, i);
-    }
+  for (int i = 0; i < NUM_LEAVES; i++) {    
+    moveLeaf(LEAF_BASELINES[i].phaseOffset, i, IDLE_MOVEMENT);
+  }
 
   // Give the servos a moment to reach their starting positions
   delay(1500);  
@@ -139,7 +148,7 @@ void initializeLeafPositions() {
  * @details This function uses the moveLeaf() function to move all leaves in
  * organic undulating paths and handles phase wrapping to prevent overflow.
  *
- * @todo    Add logic to handle amplitude and centerAngle
+ * @todo    add randomness to the movements to make them even more organic
  * 
  */
 void updateLeafMovement() {
@@ -169,7 +178,7 @@ void updateLeafMovement() {
   for (int i = 0; i < NUM_LEAVES; i++) {
 
     // Move the leaf to its new position based on the current phase
-    moveLeaf(currentPhases[i], i);
+    moveLeaf(currentPhases[i], i, activeMovement);
 
     // Increment the phase for the current leaf
     currentPhases[i] += (LEAF_BASELINES[i].speed*activeMovement.speedFactor);

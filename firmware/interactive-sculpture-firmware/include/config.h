@@ -127,8 +127,12 @@ struct MovementSet {
     float centerAngle;  // The midpoint of the movement
     float speedFactor;  // The speed of the sine wave (times baseline speed)
 };
-const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 1};
-const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.5};
+// for ease of visualization these movement sets are defined using a virtual range 
+// between 0 and 180 that gets mapped to physical constraints in LEAF_RANGES at runtime
+const float VIRTUAL_MIN = 0; 
+const float VIRTUAL_MAX = 180;
+const MovementSet IDLE_MOVEMENT = {90, 90.0, 1};
+const MovementSet LISTEN_MOVEMENT = {20, 20.0, 2};
 const MovementSet POSITIVE_MOVEMENT = {25.0, 90, 2};
 const MovementSet NEGATIVE_MOVEMENT = {5, 135, 3};
 const MovementSet NEUTRAL_MOVEMENT = {20, 90, 1.5};
