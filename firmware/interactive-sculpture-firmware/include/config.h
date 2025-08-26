@@ -44,6 +44,7 @@ const Leaf LEAF_PINS[NUM_LEAVES] = {
 #define INTERACTION_TRIG_PIN 4
 #define INTERACTION_ECHO_PIN 5
 
+
 //-------------[ SERVO CALIBRATION ]-------------
 #define PULSEWIDTH_MIN 500
 #define PULSEWIDTH_MAX 2500
@@ -62,8 +63,13 @@ const int ULTRASONIC_CLEAR_PULSE = 2; // in microseconds
 const int ULTRASONIC_TRIGGER_PULSE = 10; // in microseconds
 const float SPEED_OF_SOUND = 0.0343; // cm per microsecond
 
+// Ultrasonic timeout to not stall other functions
+const int MAX_ULTRASONIC_RANGE = 200; // in centimeters
+const unsigned long ULTRASONIC_TIMEOUT = (MAX_ULTRASONIC_RANGE * 2) / SPEED_OF_SOUND; // in microseconds
+
 // Sampling Interval for the sensors
 const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
+
 
 //-------------[ PHYSICAL CONSTRAINTS ]-------------
 // Define the safe movement range for each of the leaves

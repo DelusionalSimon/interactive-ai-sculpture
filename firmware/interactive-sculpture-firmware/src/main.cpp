@@ -248,7 +248,7 @@ float readUltrasonicDistance(SensorType sensor) {
   digitalWrite(triggerPin, LOW);
 
   // Read the echo pin and calculate the distance
-  long duration = pulseIn(echoPin, HIGH);
+  long duration = pulseIn(echoPin, HIGH, ULTRASONIC_TIMEOUT);
   float distance = (duration * SPEED_OF_SOUND) / 2; // Convert to cm
 
   return distance;
