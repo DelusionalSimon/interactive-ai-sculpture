@@ -16,6 +16,7 @@
 
 // TODO: replace #define with const across the board 
 // TODO: add type hinting
+// TODO: add additional externs for variables in main.cpp
 
 #ifndef CONFIG_H
 #define CONFIG_H
@@ -105,6 +106,9 @@ const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
 
 
 //-------------[ STATE MACHINE DEFINITION ]-------------
+// Cooldown period to prevent rapid state changes from noisy sensors
+const unsigned long STATE_CHANGE_COOLDOWN_MS = 2000; // 2 seconds
+
 // An enum to create clear, readable names for the user position states
 enum UserState {
     NO_USER,
@@ -118,7 +122,8 @@ enum MovementState {
     LISTEN,             // State when the sculpture is listening for input 
     REACTING_POSITIVE,  
     REACTING_NEGATIVE,
-    REACTING_NEUTRAL
+    REACTING_NEUTRAL,
+    NO_CHANGE           // Used to keep track of when the state isn't changing
 };
 
 // Define the movement sets for different states

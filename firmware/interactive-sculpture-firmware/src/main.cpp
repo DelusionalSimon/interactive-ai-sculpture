@@ -30,22 +30,25 @@ float currentPhases[NUM_LEAVES];
 
 // Set up state machone for movement
 MovementState movementState = IDLE; // Start in IDLE state
+MovementState pendingState = NO_CHANGE; // Keeps track of the next state
 
 // Set up state machine for user detection
 UserState userState = NO_USER;
 
 // Concurrency variables for each separate task
 unsigned long userDetectTime = 0;
+unsigned long lastStateChangeTime = 0;
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
-void moveLeaf(float phase, int leafIndex, const MovementSet& movementSet);
-void initializeLeafPositions();
-void updateLeafMovement();
-void setMovementState(MovementState state);
+void  moveLeaf(float phase, int leafIndex, const MovementSet& movementSet);
+void  initializeLeafPositions();
+void  updateLeafMovement();
+void  requestStateChange(MovementState newState);
+void  updateStateMachine();
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
 float readUltrasonicDistance(SensorType sensor);
-void userDetection();
-void readSerialCommands();
+void  userDetection();
+void  readSerialCommands();
 
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
@@ -77,14 +80,15 @@ void setup() {
 //-------------[ MAIN LOOP ]-------------
 void loop() {
 
-    // Continuously update leaf movements
-    updateLeafMovement();
+  // Input: Gather information from sensors and serial
+  userDetection(); 
+  readSerialCommands();
 
-    // Check for user approach and interaction
-    userDetection(); 
+  // Process: Make decisions based on the new information
+  updateStateMachine();
 
-    // Listen for commands from the host computer
-    readSerialCommands();
+  // Output: Move the leaves to reflect the current state
+  updateLeafMovement();
 
 }
 
@@ -199,9 +203,33 @@ void updateLeafMovement() {
  * @todo    Implement logic to handle smooth transitions between states
  * 
  */
-void setMovementState(MovementState state) {
-  // Set the current state to the new state
-  movementState = state;  
+void requestStateChange(MovementState newState) {
+    // Log the request if it's different from the current state AND any pending state
+    if (newState != movementState && newState != pendingState) {
+        pendingState = newState;
+    }
+}
+
+/**
+ * @brief  Checks for and processes pending state changes after a cooldown
+ * 
+ */
+void updateStateMachine() {
+    // Check if a state change is pending AND the cooldown has expired
+    if (pendingState != NO_CHANGE && millis() - lastStateChangeTime > STATE_CHANGE_COOLDOWN_MS) {
+        
+        // Apply the pending state change
+        movementState = pendingState;
+
+        // Print the state to serial:
+        Serial.println(movementState);
+            
+        // Clear the pending state
+        pendingState = NO_CHANGE;
+
+        // Update the timestamp to start the new cooldown period
+        lastStateChangeTime = millis();
+    }
 }
 
  /**
@@ -289,7 +317,7 @@ void userDetection() {
             if (approachDistance <= APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_start");
                 userState = USER_APPROACHING;
-                setMovementState(LISTEN);
+                requestStateChange(LISTEN);
             }
             break;
 
@@ -300,7 +328,7 @@ void userDetection() {
             } else if (approachDistance > APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_end");
                 userState = NO_USER;
-                setMovementState(IDLE);
+                requestStateChange(IDLE);
             }
             break;
 
@@ -317,13 +345,13 @@ void readSerialCommands() {
         String command = Serial.readStringUntil('\n');
         
         if (command == "set_state:REACTING_POSITIVE") {
-            setMovementState(REACTING_POSITIVE); 
+            requestStateChange(REACTING_POSITIVE); 
         } else if (command == "set_state:REACTING_NEGATIVE") {
-            setMovementState(REACTING_NEGATIVE); 
+            requestStateChange(REACTING_NEGATIVE); 
         } else if (command == "set_state:REACTING_NEUTRAL") {
-            setMovementState(REACTING_NEUTRAL); 
+            requestStateChange(REACTING_NEUTRAL); 
         } else if (command == "set_state:IDLE") {
-            setMovementState(IDLE); 
+            requestStateChange(IDLE); 
         }
     }
 }
