@@ -47,6 +47,7 @@ MovementSet getMovementSetForState(MovementState state);
 void  requestStateChange(MovementState newState);
 void  updateStateMachine();
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
+float lerp(float start, float end, float progress);
 float readUltrasonicDistance(SensorType sensor);
 void  userDetection();
 void  readSerialCommands();

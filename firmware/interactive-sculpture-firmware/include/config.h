@@ -109,6 +109,10 @@ const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
 // Cooldown period to prevent rapid state changes from noisy sensors
 const unsigned long STATE_CHANGE_COOLDOWN_MS = 2000; // 2 seconds
 
+// Controls the speed of the transition between states.
+// Smaller value = slower, smoother transition.
+const float SMOOTHING_FACTOR = 0.05; 
+
 // An enum to create clear, readable names for the user position states
 enum UserState {
     NO_USER,
