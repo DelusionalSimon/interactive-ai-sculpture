@@ -24,6 +24,8 @@ See the LICENSE file in the project root for the full license text.
 # TODO: Add threading to make the ai loop run in parallel to enable the next todo
 # TODO: Make the recording run until the user leaves the interaction zone
 
+# TODO: Implement a robust interaction handler with a cooldown and a busy flag.
+
 # -------------[ LIBRARIES ]-------------
 import os
 from pathlib import Path

@@ -30,22 +30,30 @@ float currentPhases[NUM_LEAVES];
 
 // Set up state machone for movement
 MovementState movementState = IDLE; // Start in IDLE state
+MovementState pendingState = NO_CHANGE; // Keeps track of the next state
+
+// Holds the live, interpolated movement parameters
+MovementSet currentMovement; 
 
 // Set up state machine for user detection
 UserState userState = NO_USER;
 
 // Concurrency variables for each separate task
 unsigned long userDetectTime = 0;
+unsigned long lastStateChangeTime = 0;
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
-void moveLeaf(float phase, int leafIndex);
-void initializeLeafPositions();
-void updateLeafMovement();
-void setMovementState(MovementState state);
+void  moveLeaf(float phase, int leafIndex, const MovementSet& movementSet);
+void  initializeLeafPositions();
+void  updateLeafMovement();
+MovementSet getMovementSetForState(MovementState state);
+void  requestStateChange(MovementState newState);
+void  updateStateMachine();
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
+float lerp(float start, float end, float progress);
 float readUltrasonicDistance(SensorType sensor);
-void userDetection();
-void readSerialCommands();
+void  userDetection();
+void  readSerialCommands();
 
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
@@ -77,37 +85,48 @@ void setup() {
 //-------------[ MAIN LOOP ]-------------
 void loop() {
 
-    // Continuously update leaf movements
-    updateLeafMovement();
+  // Input: Gather information from sensors and serial
+  userDetection(); 
+  readSerialCommands();
 
-    // Check for user approach and interaction
-    userDetection(); 
+  // Process: Make decisions based on the new information
+  updateStateMachine();
 
-    // Listen for commands from the host computer
-    readSerialCommands();
+  // Output: Move the leaves to reflect the current state
+  updateLeafMovement();
 
 }
 
   
 //-------------[ HELPER FUNCTIONS ]-------------
 /** 
- * @brief  Translates an animation phase into a physical servo position.
+ * @brief  Translates an animation phase and MovementSet into a physical servo position.
  *
  * @details This is a core utility function that takes a point in an animation cycle
  * (the phase) and maps it to a precise pulse width for a specific servo,
  * respecting the pre-defined safe movement range for that leaf.
+ * It uses a virtual range supplied in an input MovementSet to differentiate
+ * the midpoint and amplitude of each type of movement
  *
  * @param   phase The current phase of the sine wave for the leaf.
  * @param   leafIndex The index of the leaf to move.
+ * @param   movementSet The MovementSet currently active 
  * 
  */
-void moveLeaf(float phase, int leafIndex) {
+void moveLeaf(float phase, int leafIndex, const MovementSet& movementSet) {
   
   // Calculate the sine value for the current phase of this leaf
   float sinValue = sin(phase);
 
-  // Get the angle the leaf should have using float precision
-  float angle = mapFloat(sinValue, -1, 1, LEAF_RANGES[leafIndex].minAngle, LEAF_RANGES[leafIndex].maxAngle);
+  // Map the virtual center and amplitude directly to the physical safety range
+  float angle = mapFloat( movementSet.centerAngle + sinValue * movementSet.amplitude,
+                          VIRTUAL_MIN,
+                          VIRTUAL_MAX,
+                          LEAF_RANGES[leafIndex].minAngle,
+                          LEAF_RANGES[leafIndex].maxAngle );
+
+  // Safety net in case of floating point errors
+  angle = constrain(angle, LEAF_RANGES[leafIndex].minAngle, LEAF_RANGES[leafIndex].maxAngle);
 
   // Convert the angle to pulse width
   int pulseWidth = mapFloat(angle, 0, SERVO_MAX_ANGLE, PULSEWIDTH_MIN, PULSEWIDTH_MAX);
@@ -118,61 +137,48 @@ void moveLeaf(float phase, int leafIndex) {
 }
 
 /**
- * @brief  Initializes the leaf positions based on their starting phases.
+ * @brief  Initializes the leaf positions based on their starting phases
+ * and the idle movement set.
  * 
  */
 void initializeLeafPositions() {
-  
-  for (int i = 0; i < NUM_LEAVES; i++) {
 
-    // Move the leaf to its initial position based on its baseline phase offset
-    moveLeaf(LEAF_BASELINES[i].phaseOffset, i);
-    }
+  for (int i = 0; i < NUM_LEAVES; i++) {    
+    moveLeaf(LEAF_BASELINES[i].phaseOffset, i, IDLE_MOVEMENT);
+  }
 
   // Give the servos a moment to reach their starting positions
   delay(1500);  
 }
 
 /**
- * @brief  Moves the leaf servos in organic paths
+ * @brief  Moves the leaf servos in organic paths.
  *
  * @details This function uses the moveLeaf() function to move all leaves in
- * organic undulating paths and handles phase wrapping to prevent overflow.
+ * organic undulating paths, using easing to make movement changes flow,
+ * and handles phase wrapping to prevent overflow.
  *
- * @todo    Add logic to handle amplitude and centerAngle
+ * @todo    add randomness to the movements to make them even more organic
  * 
  */
 void updateLeafMovement() {
 
-  MovementSet activeMovement;
+   // 1. Determine the destination based on the current state
+    MovementSet targetMovement = getMovementSetForState(movementState);
 
-  // Select the correct movement parameters based on the current state
-  switch (movementState) {
-      case LISTEN:
-          activeMovement = LISTEN_MOVEMENT;
-          break;
-      case REACTING_POSITIVE:
-          activeMovement = POSITIVE_MOVEMENT;
-          break;
-      case REACTING_NEGATIVE:
-          activeMovement = NEGATIVE_MOVEMENT;
-          break;
-      case REACTING_NEUTRAL:
-          activeMovement = NEUTRAL_MOVEMENT;
-          break;            
-      case IDLE:
-      default:
-          activeMovement = IDLE_MOVEMENT;
-          break;
-  }
-   
+    // 2. Smoothly interpolate the current movement towards the target
+    currentMovement.centerAngle = lerp(currentMovement.centerAngle, targetMovement.centerAngle, SMOOTHING_FACTOR);
+    currentMovement.amplitude = lerp(currentMovement.amplitude, targetMovement.amplitude, SMOOTHING_FACTOR);
+    currentMovement.speedFactor = lerp(currentMovement.speedFactor, targetMovement.speedFactor, SMOOTHING_FACTOR);
+    
+    // 3. Move the leaves using the newly updated "currentMovement"
   for (int i = 0; i < NUM_LEAVES; i++) {
 
     // Move the leaf to its new position based on the current phase
-    moveLeaf(currentPhases[i], i);
+    moveLeaf(currentPhases[i], i, currentMovement);
 
     // Increment the phase for the current leaf
-    currentPhases[i] += (LEAF_BASELINES[i].speed*activeMovement.speedFactor);
+    currentPhases[i] += (LEAF_BASELINES[i].speed*currentMovement.speedFactor);
 
     // Reset the phase of the leaf if it exceeds 2 * PI to avoid overflow
     if (currentPhases[i] >= 2 * PI) {
@@ -180,6 +186,22 @@ void updateLeafMovement() {
     }
 
   }  
+}
+/**
+ * @brief  Select the correct movement parameters based on the current state
+ * 
+ * @param   state The state to get movements for
+ * 
+ */
+MovementSet getMovementSetForState(MovementState state) {
+  switch (state) {
+    case LISTEN: return LISTEN_MOVEMENT;
+    case REACTING_POSITIVE: return POSITIVE_MOVEMENT;
+    case REACTING_NEGATIVE: return NEGATIVE_MOVEMENT;
+    case REACTING_NEUTRAL: return NEUTRAL_MOVEMENT;
+    case IDLE:
+    default: return IDLE_MOVEMENT;
+  }
 }
 
 /**
@@ -190,9 +212,30 @@ void updateLeafMovement() {
  * @todo    Implement logic to handle smooth transitions between states
  * 
  */
-void setMovementState(MovementState state) {
-  // Set the current state to the new state
-  movementState = state;  
+void requestStateChange(MovementState newState) {
+    // Log the request if it's different from the current state AND any pending state
+    if (newState != movementState && newState != pendingState) {
+        pendingState = newState;
+    }
+}
+
+/**
+ * @brief  Checks for and processes pending state changes after a cooldown
+ * 
+ */
+void updateStateMachine() {
+    // Check if a state change is pending AND the cooldown has expired
+    if (pendingState != NO_CHANGE && millis() - lastStateChangeTime > STATE_CHANGE_COOLDOWN_MS) {
+        
+        // Apply the pending state change
+        movementState = pendingState;
+            
+        // Clear the pending state
+        pendingState = NO_CHANGE;
+
+        // Update the timestamp to start the new cooldown period
+        lastStateChangeTime = millis();
+    }
 }
 
  /**
@@ -209,6 +252,20 @@ void setMovementState(MovementState state) {
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
+/**
+ * @brief  Calculates a point between two values using linear interpolation (lerp).
+ * 
+ * @param  start The starting value (returned when progress is 0.0).
+ * @param  end The ending value (returned when progress is 1.0).
+ * @param  progress The interpolation factor, typically a value from 0.0 to 1.0.
+ * 
+ * @return The interpolated value between the start and end points
+ */
+float lerp(float start, float end, float progress) {
+  return start + (end - start) * progress;
+}
+
 
 /** 
  * @brief  Reads distance from the ultrasonic sensor.
@@ -248,7 +305,7 @@ float readUltrasonicDistance(SensorType sensor) {
   digitalWrite(triggerPin, LOW);
 
   // Read the echo pin and calculate the distance
-  long duration = pulseIn(echoPin, HIGH);
+  long duration = pulseIn(echoPin, HIGH, ULTRASONIC_TIMEOUT);
   float distance = (duration * SPEED_OF_SOUND) / 2; // Convert to cm
 
   return distance;
@@ -280,7 +337,7 @@ void userDetection() {
             if (approachDistance <= APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_start");
                 userState = USER_APPROACHING;
-                setMovementState(LISTEN);
+                requestStateChange(LISTEN);
             }
             break;
 
@@ -291,7 +348,7 @@ void userDetection() {
             } else if (approachDistance > APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_end");
                 userState = NO_USER;
-                setMovementState(IDLE);
+                requestStateChange(IDLE);
             }
             break;
 
@@ -308,13 +365,13 @@ void readSerialCommands() {
         String command = Serial.readStringUntil('\n');
         
         if (command == "set_state:REACTING_POSITIVE") {
-            setMovementState(REACTING_POSITIVE); 
+            requestStateChange(REACTING_POSITIVE); 
         } else if (command == "set_state:REACTING_NEGATIVE") {
-            setMovementState(REACTING_NEGATIVE); 
+            requestStateChange(REACTING_NEGATIVE); 
         } else if (command == "set_state:REACTING_NEUTRAL") {
-            setMovementState(REACTING_NEUTRAL); 
+            requestStateChange(REACTING_NEUTRAL); 
         } else if (command == "set_state:IDLE") {
-            setMovementState(IDLE); 
+            requestStateChange(IDLE); 
         }
     }
 }

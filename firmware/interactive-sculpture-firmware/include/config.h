@@ -16,6 +16,7 @@
 
 // TODO: replace #define with const across the board 
 // TODO: add type hinting
+// TODO: add additional externs for variables in main.cpp
 
 #ifndef CONFIG_H
 #define CONFIG_H
@@ -44,6 +45,7 @@ const Leaf LEAF_PINS[NUM_LEAVES] = {
 #define INTERACTION_TRIG_PIN 4
 #define INTERACTION_ECHO_PIN 5
 
+
 //-------------[ SERVO CALIBRATION ]-------------
 #define PULSEWIDTH_MIN 500
 #define PULSEWIDTH_MAX 2500
@@ -62,8 +64,13 @@ const int ULTRASONIC_CLEAR_PULSE = 2; // in microseconds
 const int ULTRASONIC_TRIGGER_PULSE = 10; // in microseconds
 const float SPEED_OF_SOUND = 0.0343; // cm per microsecond
 
+// Ultrasonic timeout to not stall other functions
+const int MAX_ULTRASONIC_RANGE = 200; // in centimeters
+const unsigned long ULTRASONIC_TIMEOUT = (MAX_ULTRASONIC_RANGE * 2) / SPEED_OF_SOUND; // in microseconds
+
 // Sampling Interval for the sensors
 const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
+
 
 //-------------[ PHYSICAL CONSTRAINTS ]-------------
 // Define the safe movement range for each of the leaves
@@ -99,6 +106,13 @@ const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
 
 
 //-------------[ STATE MACHINE DEFINITION ]-------------
+// Cooldown period to prevent rapid state changes from noisy sensors
+const unsigned long STATE_CHANGE_COOLDOWN_MS = 2000; // 2 seconds
+
+// Controls the speed of the transition between states.
+// Smaller value = slower, smoother transition.
+const float SMOOTHING_FACTOR = 0.005; 
+
 // An enum to create clear, readable names for the user position states
 enum UserState {
     NO_USER,
@@ -112,7 +126,8 @@ enum MovementState {
     LISTEN,             // State when the sculpture is listening for input 
     REACTING_POSITIVE,  
     REACTING_NEGATIVE,
-    REACTING_NEUTRAL
+    REACTING_NEUTRAL,
+    NO_CHANGE           // Used to keep track of when the state isn't changing
 };
 
 // Define the movement sets for different states
@@ -121,8 +136,12 @@ struct MovementSet {
     float centerAngle;  // The midpoint of the movement
     float speedFactor;  // The speed of the sine wave (times baseline speed)
 };
-const MovementSet IDLE_MOVEMENT = {25.0, 90.0, 1};
-const MovementSet LISTEN_MOVEMENT = {3.0, 20.0, 0.5};
+// for ease of visualization these movement sets are defined using a virtual range 
+// between 0 and 180 that gets mapped to physical constraints in LEAF_RANGES at runtime
+const float VIRTUAL_MIN = 0; 
+const float VIRTUAL_MAX = 180;
+const MovementSet IDLE_MOVEMENT = {90, 90.0, 1};
+const MovementSet LISTEN_MOVEMENT = {20, 20.0, 3};
 const MovementSet POSITIVE_MOVEMENT = {25.0, 90, 2};
 const MovementSet NEGATIVE_MOVEMENT = {5, 135, 3};
 const MovementSet NEUTRAL_MOVEMENT = {20, 90, 1.5};
