@@ -43,6 +43,7 @@ unsigned long lastStateChangeTime = 0;
 void  moveLeaf(float phase, int leafIndex, const MovementSet& movementSet);
 void  initializeLeafPositions();
 void  updateLeafMovement();
+MovementSet getMovementSetForState(MovementState state);
 void  requestStateChange(MovementState newState);
 void  updateStateMachine();
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
@@ -160,24 +161,7 @@ void updateLeafMovement() {
   MovementSet activeMovement;
 
   // Select the correct movement parameters based on the current state
-  switch (movementState) {
-      case LISTEN:
-          activeMovement = LISTEN_MOVEMENT;
-          break;
-      case REACTING_POSITIVE:
-          activeMovement = POSITIVE_MOVEMENT;
-          break;
-      case REACTING_NEGATIVE:
-          activeMovement = NEGATIVE_MOVEMENT;
-          break;
-      case REACTING_NEUTRAL:
-          activeMovement = NEUTRAL_MOVEMENT;
-          break;            
-      case IDLE:
-      default:
-          activeMovement = IDLE_MOVEMENT;
-          break;
-  }
+  activeMovement =  getMovementSetForState(movementState);
    
   for (int i = 0; i < NUM_LEAVES; i++) {
 
@@ -193,6 +177,22 @@ void updateLeafMovement() {
     }
 
   }  
+}
+/**
+ * @brief  Select the correct movement parameters based on the current state
+ * 
+ * @param   state The state to get movements for
+ * 
+ */
+MovementSet getMovementSetForState(MovementState state) {
+  switch (state) {
+    case LISTEN: return LISTEN_MOVEMENT;
+    case REACTING_POSITIVE: return POSITIVE_MOVEMENT;
+    case REACTING_NEGATIVE: return NEGATIVE_MOVEMENT;
+    case REACTING_NEUTRAL: return NEUTRAL_MOVEMENT;
+    case IDLE:
+    default: return IDLE_MOVEMENT;
+  }
 }
 
 /**
