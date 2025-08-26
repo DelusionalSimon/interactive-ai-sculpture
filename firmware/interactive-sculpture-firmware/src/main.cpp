@@ -32,6 +32,9 @@ float currentPhases[NUM_LEAVES];
 MovementState movementState = IDLE; // Start in IDLE state
 MovementState pendingState = NO_CHANGE; // Keeps track of the next state
 
+// Holds the live, interpolated movement parameters
+MovementSet currentMovement; 
+
 // Set up state machine for user detection
 UserState userState = NO_USER;
 
@@ -149,28 +152,33 @@ void initializeLeafPositions() {
 }
 
 /**
- * @brief  Moves the leaf servos in organic paths
+ * @brief  Moves the leaf servos in organic paths.
  *
  * @details This function uses the moveLeaf() function to move all leaves in
- * organic undulating paths and handles phase wrapping to prevent overflow.
+ * organic undulating paths, using easing to make movement changes flow,
+ * and handles phase wrapping to prevent overflow.
  *
  * @todo    add randomness to the movements to make them even more organic
  * 
  */
 void updateLeafMovement() {
 
-  MovementSet activeMovement;
+   // 1. Determine the destination based on the current state
+    MovementSet targetMovement = getMovementSetForState(movementState);
 
-  // Select the correct movement parameters based on the current state
-  activeMovement =  getMovementSetForState(movementState);
-   
+    // 2. Smoothly interpolate the current movement towards the target
+    currentMovement.centerAngle = lerp(currentMovement.centerAngle, targetMovement.centerAngle, SMOOTHING_FACTOR);
+    currentMovement.amplitude = lerp(currentMovement.amplitude, targetMovement.amplitude, SMOOTHING_FACTOR);
+    currentMovement.speedFactor = lerp(currentMovement.speedFactor, targetMovement.speedFactor, SMOOTHING_FACTOR);
+    
+    // 3. Move the leaves using the newly updated "currentMovement"
   for (int i = 0; i < NUM_LEAVES; i++) {
 
     // Move the leaf to its new position based on the current phase
-    moveLeaf(currentPhases[i], i, activeMovement);
+    moveLeaf(currentPhases[i], i, currentMovement);
 
     // Increment the phase for the current leaf
-    currentPhases[i] += (LEAF_BASELINES[i].speed*activeMovement.speedFactor);
+    currentPhases[i] += (LEAF_BASELINES[i].speed*currentMovement.speedFactor);
 
     // Reset the phase of the leaf if it exceeds 2 * PI to avoid overflow
     if (currentPhases[i] >= 2 * PI) {
@@ -221,9 +229,6 @@ void updateStateMachine() {
         
         // Apply the pending state change
         movementState = pendingState;
-
-        // Print the state to serial:
-        Serial.println(movementState);
             
         // Clear the pending state
         pendingState = NO_CHANGE;

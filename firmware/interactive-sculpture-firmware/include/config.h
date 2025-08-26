@@ -111,7 +111,7 @@ const unsigned long STATE_CHANGE_COOLDOWN_MS = 2000; // 2 seconds
 
 // Controls the speed of the transition between states.
 // Smaller value = slower, smoother transition.
-const float SMOOTHING_FACTOR = 0.05; 
+const float SMOOTHING_FACTOR = 0.005; 
 
 // An enum to create clear, readable names for the user position states
 enum UserState {
@@ -141,7 +141,7 @@ struct MovementSet {
 const float VIRTUAL_MIN = 0; 
 const float VIRTUAL_MAX = 180;
 const MovementSet IDLE_MOVEMENT = {90, 90.0, 1};
-const MovementSet LISTEN_MOVEMENT = {20, 20.0, 2};
+const MovementSet LISTEN_MOVEMENT = {20, 20.0, 3};
 const MovementSet POSITIVE_MOVEMENT = {25.0, 90, 2};
 const MovementSet NEGATIVE_MOVEMENT = {5, 135, 3};
 const MovementSet NEUTRAL_MOVEMENT = {20, 90, 1.5};
