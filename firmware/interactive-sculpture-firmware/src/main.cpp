@@ -247,6 +247,20 @@ float mapFloat(float x, float in_min, float in_max, float out_min, float out_max
   return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
+/**
+ * @brief  Calculates a point between two values using linear interpolation (lerp).
+ * 
+ * @param  start The starting value (returned when progress is 0.0).
+ * @param  end The ending value (returned when progress is 1.0).
+ * @param  progress The interpolation factor, typically a value from 0.0 to 1.0.
+ * 
+ * @return The interpolated value between the start and end points
+ */
+float lerp(float start, float end, float progress) {
+  return start + (end - start) * progress;
+}
+
+
 /** 
  * @brief  Reads distance from the ultrasonic sensor.
  * 
