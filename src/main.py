@@ -43,7 +43,8 @@ from voice_synthesis import synthesize_speech
 # import configuration settings
 from config import ( WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, 
                     SERIAL_PORT, BAUD_RATE, SENTIMENT_TO_MOVEMENT_MAP, STANDARD_STATE,
-                    SENTIMENT_GOOD_THRESHOLD, SENTIMENT_BAD_THRESHOLD, REACTION_TIMING)
+                    SENTIMENT_GOOD_THRESHOLD, SENTIMENT_BAD_THRESHOLD, REACTION_TIMING,
+                    URGE_WAV_PATH)
 
 # -------------[ INITIALIZATION ]-------------
 # Initialize the Whisper model
@@ -61,6 +62,9 @@ output_wav_full_path = root_dir / OUTPUT_WAV_PATH
 # ensure output directory exists
 os.makedirs(output_wav_full_path.parent, exist_ok=True)
 
+# form the proper path for pregenerated voice samples
+urge_wav_full_path = root_dir / URGE_WAV_PATH
+
 # Initialize the Piper voice model
 print("Loading Piper model...")
 piper_voice = PiperVoice.load(  model_path=piper_model_full_path, 
@@ -77,6 +81,9 @@ def ai_pipeline(ser):
     @details This function orchestrates the entire process from audio recording
              to providing a final AI-generated text reply.
     """
+    # Urge the user to speak when they enter interaction mode
+    os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {urge_wav_full_path}")
+
     # Step 1: Record audio and transcribe
     audio_path = record_audio()
     user_input = transcribe_audio(str(audio_path), model)

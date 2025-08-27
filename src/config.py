@@ -81,6 +81,11 @@ OUTPUT_WAV_DIR = "output"
 OUTPUT_WAV_FILE = "output_speech.wav"
 OUTPUT_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, OUTPUT_WAV_FILE)
 
+# Paths to pregenerated audio clips
+OUTPUT_WAV_DIR = "output"
+OUTPUT_WAV_FILE = "urge_clip.wav"
+URGE_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, OUTPUT_WAV_FILE)
+
 # Configure Piper synthesis parameters
 SYN_CONFIG = SynthesisConfig(
     volume = 1,   

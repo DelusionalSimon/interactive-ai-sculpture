@@ -81,5 +81,5 @@ if __name__ == "__main__":
 
     #synthesize the speech and save to file
     print("Synthesizing speech...")
-    synthesize_speech(text_to_synthesize, str(output_wav_full_path, piper_voice))
+    synthesize_speech(text_to_synthesize, str(output_wav_full_path), piper_voice)
     
