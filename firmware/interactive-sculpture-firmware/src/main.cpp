@@ -334,7 +334,7 @@ void userDetection() {
     // User detection state machine
     switch (userState) {
         case NO_USER:
-            if (approachDistance <= APPROACH_THRESHOLD_CM) {
+            if (interactionDistance > 0 && approachDistance <= APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_start");
                 userState = USER_APPROACHING;
                 requestStateChange(LISTEN);
@@ -342,10 +342,10 @@ void userDetection() {
             break;
 
         case USER_APPROACHING:
-            if (interactionDistance <= INTERACTION_THRESHOLD_CM) {
+            if (interactionDistance > 0 && interactionDistance <= INTERACTION_THRESHOLD_CM) {
                 Serial.println("event:user_interaction_start");
                 userState = USER_INTERACTING;
-            } else if (approachDistance > APPROACH_THRESHOLD_CM) {
+            } else if (interactionDistance > 0 && approachDistance > APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_end");
                 userState = NO_USER;
                 requestStateChange(IDLE);
@@ -353,7 +353,7 @@ void userDetection() {
             break;
 
         case USER_INTERACTING:
-            if (interactionDistance > INTERACTION_THRESHOLD_CM) {
+            if (interactionDistance > 0 && interactionDistance > INTERACTION_THRESHOLD_CM) {
                 Serial.println("event:user_interaction_end");
                 userState = USER_APPROACHING;
             }
