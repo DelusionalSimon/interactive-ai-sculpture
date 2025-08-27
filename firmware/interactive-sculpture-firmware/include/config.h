@@ -67,6 +67,7 @@ const float SPEED_OF_SOUND = 0.0343; // cm per microsecond
 // Ultrasonic timeout to not stall other functions
 const int MAX_ULTRASONIC_RANGE = 200; // in centimeters
 const unsigned long ULTRASONIC_TIMEOUT = (MAX_ULTRASONIC_RANGE * 2) / SPEED_OF_SOUND; // in microseconds
+const float SENSOR_OUT_OF_RANGE = 999; //  to sanitize sensor timeout
 
 // Sampling Interval for the sensors
 const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
@@ -85,8 +86,8 @@ const AngleRange LEAF_RANGES[NUM_LEAVES] = {
 //TODO: Add more leaves with their ranges 
 
 // Sensor threshold distances in cm
-#define APPROACH_THRESHOLD_CM 30.0 
-#define INTERACTION_THRESHOLD_CM 10.0
+#define APPROACH_THRESHOLD_CM 100.0 
+#define INTERACTION_THRESHOLD_CM 50.0
 
 //-------------[ MOVEMENT SET CONFIGURATIONS ]-------------
 // Declare the array of current phases for each leaf.

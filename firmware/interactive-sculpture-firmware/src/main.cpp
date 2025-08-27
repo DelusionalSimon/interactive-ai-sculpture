@@ -308,6 +308,11 @@ float readUltrasonicDistance(SensorType sensor) {
   long duration = pulseIn(echoPin, HIGH, ULTRASONIC_TIMEOUT);
   float distance = (duration * SPEED_OF_SOUND) / 2; // Convert to cm
 
+  // If the distance is 0 (a timeout), return our out-of-range value instead.
+    if (distance == 0) {
+        distance = SENSOR_OUT_OF_RANGE;
+    }
+
   return distance;
 }
 
@@ -334,7 +339,7 @@ void userDetection() {
     // User detection state machine
     switch (userState) {
         case NO_USER:
-            if (interactionDistance > 0 && approachDistance <= APPROACH_THRESHOLD_CM) {
+            if (approachDistance <= APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_start");
                 userState = USER_APPROACHING;
                 requestStateChange(LISTEN);
@@ -342,10 +347,10 @@ void userDetection() {
             break;
 
         case USER_APPROACHING:
-            if (interactionDistance > 0 && interactionDistance <= INTERACTION_THRESHOLD_CM) {
+            if (interactionDistance <= INTERACTION_THRESHOLD_CM) {
                 Serial.println("event:user_interaction_start");
                 userState = USER_INTERACTING;
-            } else if (interactionDistance > 0 && approachDistance > APPROACH_THRESHOLD_CM) {
+            } else if (approachDistance > APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_end");
                 userState = NO_USER;
                 requestStateChange(IDLE);
@@ -353,7 +358,7 @@ void userDetection() {
             break;
 
         case USER_INTERACTING:
-            if (interactionDistance > 0 && interactionDistance > INTERACTION_THRESHOLD_CM) {
+            if (interactionDistance > INTERACTION_THRESHOLD_CM) {
                 Serial.println("event:user_interaction_end");
                 userState = USER_APPROACHING;
             }
