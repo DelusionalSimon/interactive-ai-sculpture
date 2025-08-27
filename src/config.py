@@ -21,7 +21,7 @@ import os
 
 # -------------[ LOGIC BRIDGE ]-------------
 # Serial connection
-SERIAL_PORT = "COM7"  # Adjust this to your Arduino's serial port
+SERIAL_PORT = "COM8"  # Adjust this to your Arduino's serial port
 BAUD_RATE = 9600 # Match the baud rate in config.h
 
 # time to hold reaction movement set before returning to idle, in seconds 

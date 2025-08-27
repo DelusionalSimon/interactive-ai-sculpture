@@ -124,6 +124,7 @@ enum UserState {
 // An enum to give the movement states clear, readable names.
 enum MovementState {
     IDLE,               // Default state when the sculpture is not interacting
+    APPROACH,
     LISTEN,             // State when the sculpture is listening for input 
     REACTING_POSITIVE,  
     REACTING_NEGATIVE,
@@ -141,8 +142,9 @@ struct MovementSet {
 // between 0 and 180 that gets mapped to physical constraints in LEAF_RANGES at runtime
 const float VIRTUAL_MIN = 0; 
 const float VIRTUAL_MAX = 180;
-const MovementSet IDLE_MOVEMENT = {90, 90.0, 1};
-const MovementSet LISTEN_MOVEMENT = {20, 20.0, 3};
+const MovementSet IDLE_MOVEMENT = {90, 90.0, 2};
+const MovementSet APPROACH_MOVEMENT = {20, 20.0, 1};
+const MovementSet LISTEN_MOVEMENT = {20, 20.0, 5};
 const MovementSet POSITIVE_MOVEMENT = {25.0, 90, 2};
 const MovementSet NEGATIVE_MOVEMENT = {5, 135, 3};
 const MovementSet NEUTRAL_MOVEMENT = {20, 90, 1.5};

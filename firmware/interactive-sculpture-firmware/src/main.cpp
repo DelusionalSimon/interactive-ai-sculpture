@@ -195,6 +195,7 @@ void updateLeafMovement() {
  */
 MovementSet getMovementSetForState(MovementState state) {
   switch (state) {
+    case APPROACH: return APPROACH_MOVEMENT;
     case LISTEN: return LISTEN_MOVEMENT;
     case REACTING_POSITIVE: return POSITIVE_MOVEMENT;
     case REACTING_NEGATIVE: return NEGATIVE_MOVEMENT;
@@ -342,7 +343,7 @@ void userDetection() {
             if (approachDistance <= APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_start");
                 userState = USER_APPROACHING;
-                requestStateChange(LISTEN);
+                requestStateChange(APPROACH);
             }
             break;
 
@@ -350,6 +351,7 @@ void userDetection() {
             if (interactionDistance <= INTERACTION_THRESHOLD_CM) {
                 Serial.println("event:user_interaction_start");
                 userState = USER_INTERACTING;
+                requestStateChange(LISTEN);
             } else if (approachDistance > APPROACH_THRESHOLD_CM) {
                 Serial.println("event:user_approach_end");
                 userState = NO_USER;
