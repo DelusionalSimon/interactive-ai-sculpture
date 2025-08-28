@@ -44,7 +44,7 @@ from voice_synthesis import synthesize_speech
 from config import ( WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, 
                     SERIAL_PORT, BAUD_RATE, SENTIMENT_TO_MOVEMENT_MAP, STANDARD_STATE,
                     SENTIMENT_GOOD_THRESHOLD, SENTIMENT_BAD_THRESHOLD, REACTION_TIMING,
-                    URGE_WAV_PATH)
+                    URGE_WAV_PATH, INTERACTION_COOLDOWN)
 
 # -------------[ INITIALIZATION ]-------------
 # Initialize the Whisper model
@@ -95,7 +95,7 @@ def ai_pipeline(ser):
 
     # Send the command to the Arduino over the existing serial connection
     command = sentiment_to_movement(sentiment_score)
-    ser.write(command.encode('utf-8'))
+    # ser.write(command.encode('utf-8')) TODO: after testing comment in again
     print(f"Sent to Arduino: {command}")
 
     # Step 3: Get LLM reply
@@ -115,8 +115,14 @@ def ai_pipeline(ser):
     # Send command for sculpture to go back to the base state after it has reacted
     time.sleep(REACTION_TIMING)
     command = STANDARD_STATE
-    ser.write(command.encode('utf-8'))
+    #ser.write(command.encode('utf-8')) TODO: after testing comment in again
     print(f"Sent to Arduino: {command}")
+    print(f"Returning to Idle animation")
+
+    # Start the blocking cooldown period
+    print(f"Starting {INTERACTION_COOLDOWN} second cooldown...")
+    time.sleep(INTERACTION_COOLDOWN)
+    print("Cooldown finished. Ready for next interaction.")
 
 def main_loop():
     """
@@ -161,5 +167,8 @@ def sentiment_to_movement(sentiment_score: float) -> str:
 # -------------[ MAIN EXECUTION ]-------------
 if __name__ == "__main__":
             
-    print("Starting Main Loop...")
-    main_loop()
+    #print("Starting Main Loop...")
+    #main_loop()
+   print("Testing ai_pipeline()...")
+   ser = 0
+   ai_pipeline(ser)

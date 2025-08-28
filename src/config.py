@@ -24,8 +24,11 @@ import os
 SERIAL_PORT = "COM8"  # Adjust this to your Arduino's serial port
 BAUD_RATE = 9600 # Match the baud rate in config.h
 
-# time to hold reaction movement set before returning to idle, in seconds 
-REACTION_TIMING = 5
+# time to hold reaction movement set before returning to idle after talking 
+REACTION_TIMING = 5 # In seconds
+
+# Cooldown between each interaction
+INTERACTION_COOLDOWN = 10 # In seconds
 
 # Sentiment to movement bridge
 SENTIMENT_TO_MOVEMENT_MAP = {
