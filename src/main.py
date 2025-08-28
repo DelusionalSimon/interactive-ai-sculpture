@@ -44,7 +44,7 @@ from voice_synthesis import synthesize_speech
 from config import ( WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, 
                     SERIAL_PORT, BAUD_RATE, SENTIMENT_TO_MOVEMENT_MAP, STANDARD_STATE,
                     SENTIMENT_GOOD_THRESHOLD, SENTIMENT_BAD_THRESHOLD, REACTION_TIMING,
-                    URGE_WAV_PATH, INTERACTION_COOLDOWN)
+                    URGE_WAV_PATH, STOP_WAV_PATH, INTERACTION_COOLDOWN)
 
 # -------------[ INITIALIZATION ]-------------
 # Initialize the Whisper model
@@ -64,6 +64,7 @@ os.makedirs(output_wav_full_path.parent, exist_ok=True)
 
 # form the proper path for pregenerated voice samples
 urge_wav_full_path = root_dir / URGE_WAV_PATH
+stop_wav_full_path = root_dir / STOP_WAV_PATH
 
 # Initialize the Piper voice model
 print("Loading Piper model...")
@@ -84,12 +85,14 @@ def ai_pipeline(ser):
     # Urge the user to speak when they enter interaction mode
     os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {urge_wav_full_path}")
 
-    # Step 1: Record audio and transcribe
+    # Record audio and transcribe
     audio_path = record_audio()
+    # Let the user know that their time is up TODO: remove if implementing reactive recording
+    os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {stop_wav_full_path}")
     user_input = transcribe_audio(str(audio_path), model)
     print(f"User said: {user_input}")
 
-    # Step 2: Analyze sentiment
+    # Analyze sentiment
     sentiment_score = analyze_sentiment(user_input)
     print(f"Sentiment score: {sentiment_score}")
 
@@ -98,11 +101,11 @@ def ai_pipeline(ser):
     # ser.write(command.encode('utf-8')) TODO: after testing comment in again
     print(f"Sent to Arduino: {command}")
 
-    # Step 3: Get LLM reply
+    # Get LLM reply
     ai_reply = get_llm_response(user_input)
     print(f"AI reply: {ai_reply}")
 
-    # Step 4: Synthesize and play voice reply
+    # Synthesize and play voice reply
     synthesize_speech(ai_reply, str(output_wav_full_path), piper_voice)
     print("Playing synthesized speech...")
     # Play the synthesized audio using ffplay (part of FFmpeg)
