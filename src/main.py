@@ -76,6 +76,9 @@ piper_voice = PiperVoice.load(  model_path=piper_model_full_path,
                                 config_path=piper_config_full_path)
 print("Piper model loaded.")
 
+# Initialize a counter to keep track of the number of interactions
+interaction_counter: int = 0
+
 
 
 # -------------[ FUNCTIONS ]-------------
@@ -129,7 +132,11 @@ def ai_pipeline(ser):
     os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {output_wav_full_path}")
  
     #TODO: Include prompt injection protection
-    #TODO: save all user inputs to list for final synthesis
+
+    # Iterate interaction counter
+    global interaction_counter
+    interaction_counter +=1
+    print(f"{interaction_counter} interactions thus far")
 
     print("Interaction complete.")
     # Send command for sculpture to go back to the base state after it has reacted
