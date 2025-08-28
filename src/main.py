@@ -82,8 +82,12 @@ def ai_pipeline(ser):
     @details This function orchestrates the entire process from audio recording
              to providing a final AI-generated text reply.
     """
+    
     # Urge the user to speak when they enter interaction mode
     os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {urge_wav_full_path}")
+
+    # TODO: Implement threading to have microphone turn on quicker, now it skips the first second
+    # Or TODO: change the audio playback system to time it perfectly
 
     # Record audio and transcribe
     audio_path = record_audio()

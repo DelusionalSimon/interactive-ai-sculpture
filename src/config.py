@@ -86,8 +86,8 @@ OUTPUT_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, OUTPUT_WAV_FILE)
 
 # Paths to pregenerated audio clips
 INPUT_WAV_DIR = "output" # Use output for now to not pollute git history
-URGE_WAV_FILE = "urge_clip.wav"
-STOP_WAV_FILE = "stop_clip.wav"
+URGE_WAV_FILE = "urge_clip.m4a" # All silence at the end needs to be trimmed to not delay recording
+STOP_WAV_FILE = "stop_clip.wav" 
 URGE_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, URGE_WAV_FILE)
 STOP_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, STOP_WAV_FILE)
 
