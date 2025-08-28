@@ -47,8 +47,14 @@ DURATION = 5            # Recording duration in seconds
 OUTPUT_FOLDER = "output"
 RECORDING_FILENAME = "temp_recording.wav"
 
+TRANSCRIPTIONS_FILENAME = "user_transcriptions.log"
+TRANSCRIPTIONS_LOG_PATH = os.path.join(OUTPUT_FOLDER, TRANSCRIPTIONS_FILENAME)
+
 # Whisper model settings
 WHISPER_MODEL = "base.en" # Let's use a smaller model for faster processing during testing
+#TODO: Use "base" or another model eventually to understand other languages, but that 
+# doesn't work with the sentiment analysis. and might make the final speech# be swedish,
+# need to harden the core prompt for final synthesis to make the speech be in english 
 
 # -------------[ LANGUAGE SYNTHESIS ]-------------
 LLM_MODEL = "llama-3.1-8b-instant" # Or another model like "llama-3.3-70b-versatile"

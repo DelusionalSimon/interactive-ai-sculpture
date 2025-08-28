@@ -44,7 +44,8 @@ from voice_synthesis import synthesize_speech
 from config import ( WHISPER_MODEL, OUTPUT_WAV_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, 
                     SERIAL_PORT, BAUD_RATE, SENTIMENT_TO_MOVEMENT_MAP, STANDARD_STATE,
                     SENTIMENT_GOOD_THRESHOLD, SENTIMENT_BAD_THRESHOLD, REACTION_TIMING,
-                    URGE_WAV_PATH, STOP_WAV_PATH, INTERACTION_COOLDOWN)
+                    URGE_WAV_PATH, STOP_WAV_PATH, INTERACTION_COOLDOWN, 
+                    TRANSCRIPTIONS_LOG_PATH,)
 
 # -------------[ INITIALIZATION ]-------------
 # Initialize the Whisper model
@@ -52,19 +53,22 @@ print("Loading Whisper model...")
 model = whisper.load_model(WHISPER_MODEL)
 print("Model loaded.")
 
-# form the proper paths for piper model and config
+# Form the proper paths for piper model and config
 root_dir = Path(__file__).parent.parent
 piper_model_full_path = root_dir / MODEL_ONNX_PATH
 piper_config_full_path = root_dir / MODEL_JSON_PATH
 
-# form the proper path for output directory
+# Form the proper path for output directory
 output_wav_full_path = root_dir / OUTPUT_WAV_PATH
 # ensure output directory exists
 os.makedirs(output_wav_full_path.parent, exist_ok=True)
 
-# form the proper path for pregenerated voice samples
+# Form the proper path for pregenerated voice samples
 urge_wav_full_path = root_dir / URGE_WAV_PATH
 stop_wav_full_path = root_dir / STOP_WAV_PATH
+
+# Form the proper path for the transcriptions log
+transcriptions_full_path = root_dir / TRANSCRIPTIONS_LOG_PATH 
 
 # Initialize the Piper voice model
 print("Loading Piper model...")
@@ -95,6 +99,15 @@ def ai_pipeline(ser):
     os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {stop_wav_full_path}")
     user_input = transcribe_audio(str(audio_path), model)
     print(f"User said: {user_input}")
+
+    # Append the transcription to the log file for final synthesis
+    try:
+        with open(transcriptions_full_path, 'a', encoding='utf-8') as f:
+            f.write(user_input + '\n')
+        print("Transcription saved to log.")
+    except IOError as e:
+        print(f"Error: Could not write to log file: {e}")
+    # TODO: Extract logging logic to dedicated function in in voice_transcription.py module
 
     # Analyze sentiment
     sentiment_score = analyze_sentiment(user_input)
