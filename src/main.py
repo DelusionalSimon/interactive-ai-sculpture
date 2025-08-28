@@ -14,6 +14,7 @@
 This software is released under the MIT License.
 See the LICENSE file in the project root for the full license text.
 """
+
 # TODO: For the MVP, the AI models are initialized directly in this script.
 #       For a future, more robust version, this initialization logic should be
 #       encapsulated within the respective handler modules to improve modularity
@@ -88,13 +89,14 @@ def ai_pipeline(ser):
     
     @details This function orchestrates the entire process from audio recording
              to providing a final AI-generated text reply.
+    
+    @todo: Consider refactoring into a Class structure
     """
     
     # Urge the user to speak when they enter interaction mode
     os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {urge_wav_full_path}")
 
     # TODO: Implement threading to have microphone turn on quicker, now it skips the first second
-    # Or TODO: change the audio playback system to time it perfectly
 
     # Record audio and transcribe
     audio_path = record_audio()
@@ -118,7 +120,7 @@ def ai_pipeline(ser):
 
     # Send the command to the Arduino over the existing serial connection
     command = sentiment_to_movement(sentiment_score)
-    # ser.write(command.encode('utf-8')) TODO: after testing comment in again
+    ser.write(command.encode('utf-8')) 
     print(f"Sent to Arduino: {command}")
 
     # Get LLM reply
@@ -142,7 +144,7 @@ def ai_pipeline(ser):
     # Send command for sculpture to go back to the base state after it has reacted
     time.sleep(REACTION_TIMING)
     command = STANDARD_STATE
-    #ser.write(command.encode('utf-8')) TODO: after testing comment in again
+    ser.write(command.encode('utf-8'))
     print(f"Sent to Arduino: {command}")
     print(f"Returning to Idle animation")
 
@@ -194,8 +196,5 @@ def sentiment_to_movement(sentiment_score: float) -> str:
 # -------------[ MAIN EXECUTION ]-------------
 if __name__ == "__main__":
             
-    #print("Starting Main Loop...")
-    #main_loop()
-   print("Testing ai_pipeline()...")
-   ser = 0
-   ai_pipeline(ser)
+    print("Starting Main Loop...")
+    main_loop()
