@@ -30,6 +30,9 @@ REACTION_TIMING = 5 # In seconds
 # Cooldown between each interaction
 INTERACTION_COOLDOWN = 10 # In seconds
 
+# Timer after initiating annihilation sequence
+WAIT_BEFORE_FINAL_WORDS = 10 # iN SECONDS
+
 # Sentiment to movement bridge
 SENTIMENT_TO_MOVEMENT_MAP = {
     "positive": "set_state:REACTING_POSITIVE",
@@ -40,6 +43,7 @@ SENTIMENT_BAD_THRESHOLD = -0.1
 SENTIMENT_GOOD_THRESHOLD = 0.1
 STANDARD_STATE = "set_state:IDLE"
 FINAL_SPEECH_STATE = "set_state:FINAL_WORDS"
+DEATH_STATE = "set_state:DEATH"
 
 # -------------[ VOICE TRANSCRIPTION ]-------------
 # Audio recording settings

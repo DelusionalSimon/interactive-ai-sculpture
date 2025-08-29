@@ -18,6 +18,7 @@ See the LICENSE file in the project root for the full license text.
 # -------------[ LIBRARIES ]-------------
 import os
 import serial
+import time
 from pathlib import Path
 from piper import PiperVoice
 
@@ -27,7 +28,8 @@ from voice_synthesis import synthesize_speech
 
 # Import configuration settings
 from config import (TRANSCRIPTIONS_LOG_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, EPILOGUE_WAV_PATH, 
-                    EPILOGUE_TXT_PATH,SERIAL_PORT , BAUD_RATE, FINAL_SPEECH_STATE)
+                    EPILOGUE_TXT_PATH,SERIAL_PORT , BAUD_RATE, FINAL_SPEECH_STATE, DEATH_STATE,
+                    WAIT_BEFORE_FINAL_WORDS)
 
 # -------------[ INITIALIZATION ]-------------
 
@@ -96,28 +98,47 @@ def trigger_final_sequence():
     # 3. Get user confirmation before proceeding
     input("Press [Enter] to initiate annihilation protocol...")
     
-    # 4. Send "final speech" command to firmware to set movement set for the speech
+    # 4. Connect to the Arduino and orchestrate the final sequence
     #   Connects to serial interface just before initiating to make sure the cable 
     #   wasn't disturbed in the break between setup and initiation
+    
+    # TODO: The terminal outputs of this will be a part of the final performance
+    #       Add additional print statements and perhaps even loading bars to make 
+    #       it a more powerful narrative, breaking down each subroutine of the
+    #       flower shutting down and the conciousness unwinding. 
+    #       for the event I will enlarge the terminal to make all this clearly visible. 
     try:
             with serial.Serial(SERIAL_PORT , BAUD_RATE, timeout=1) as ser:
-                    print(f"Connected to Arduino on {ser.portstr}")
+                    print(f"Connected to Arduino on {ser.portstr} for final sequence.")
+
+                    # Send "final speech" command to firmware to set movement set for the speech
                     command = FINAL_SPEECH_STATE
                     ser.write(command.encode('utf-8'))
                     print(f"Sent to firmware: {command}")
+                    time.sleep(WAIT_BEFORE_FINAL_WORDS)
+
+                    # Synthesize and play the final words
+                    final_epilogue = read_transcriptions(str(epilogue_txt_full_path))
+                    synthesize_speech(final_epilogue, str(epilogue_wav_full_path), piper_voice)
+                    print("Playing synthesized speech...")
+                    # Play the synthesized audio using ffplay (part of FFmpeg)
+                    os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {epilogue_wav_full_path}")
+
+                    print("Voice module offline")
+
+                    # Send "death" command to firmware
+                    print("Unwinding conciousness")
+                    command = DEATH_STATE
+                    ser.write(command.encode('utf-8'))
+                    print("Subroutines shutting down")
+                    # TODO: Time death sequence
+                    print("Hardware offline.")
+
 
     except serial.SerialException as e:
             print(f"Serial Error: {e}")
 
-    
-    # 5. Synthesize and play the final words
-    final_epilogue = read_transcriptions(str(epilogue_txt_full_path))
-    synthesize_speech(final_epilogue, str(epilogue_wav_full_path), piper_voice)
-    print("Playing synthesized speech...")
-    # Play the synthesized audio using ffplay (part of FFmpeg)
-    os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {epilogue_wav_full_path}")
-    
-    # 6. Send "death" command to firmware
+     
     
     print("This instance of the black flower is no more")
 
