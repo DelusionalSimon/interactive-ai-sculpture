@@ -59,6 +59,11 @@ WHISPER_MODEL = "base.en" # Let's use a smaller model for faster processing duri
 # -------------[ LANGUAGE SYNTHESIS ]-------------
 LLM_MODEL_INTERACTIONS = "llama-3.1-8b-instant" # A Simpler model with more allocated calls
 LLM_MODEL_EPILOGUE = "llama-3.3-70b-versatile" # A more capable model for the final synthesis
+
+# Path to save the epilogue in text form
+EPILOGUE_TXT_FILE = "epilogue_speech.txt"
+EPILOGUE_TXT_PATH = os.path.join(OUTPUT_FOLDER, EPILOGUE_TXT_FILE)
+
 LLM_CORE_PROMPT = [
     {
         "role": "system",
@@ -113,21 +118,19 @@ MODEL_ONNX_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx")
 MODEL_JSON_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx.json")
 
 # Path to save synthesized audio for the interactions
-OUTPUT_WAV_DIR = "output"
 OUTPUT_WAV_FILE = "output_speech.wav"
-OUTPUT_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, OUTPUT_WAV_FILE)
+OUTPUT_WAV_PATH = os.path.join(OUTPUT_FOLDER, OUTPUT_WAV_FILE)
 
 # Path to save synthesized audio for the epilogue
 EPILOGUE_WAV_FILE = "epilogue_speech.wav"
-EPILOGUE_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, EPILOGUE_WAV_FILE)
-
+EPILOGUE_WAV_PATH = os.path.join(OUTPUT_FOLDER, EPILOGUE_WAV_FILE)
 
 # Paths to pregenerated audio clips
 INPUT_WAV_DIR = "output" # Use output for now to not pollute git history
 URGE_WAV_FILE = "urge_clip.m4a" # All silence at the end needs to be trimmed to not delay recording
 STOP_WAV_FILE = "stop_clip.wav" 
-URGE_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, URGE_WAV_FILE)
-STOP_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, STOP_WAV_FILE)
+URGE_WAV_PATH = os.path.join(INPUT_WAV_DIR, URGE_WAV_FILE)
+STOP_WAV_PATH = os.path.join(INPUT_WAV_DIR, STOP_WAV_FILE)
 
 # Configure Piper synthesis parameters
 SYN_CONFIG = SynthesisConfig(

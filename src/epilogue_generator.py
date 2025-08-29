@@ -25,7 +25,7 @@ from language_synthesis import get_llm_response
 from voice_synthesis import synthesize_speech
 
 # Import configuration settings
-from config import TRANSCRIPTIONS_LOG_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, EPILOGUE_WAV_PATH
+from config import TRANSCRIPTIONS_LOG_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, EPILOGUE_WAV_PATH, EPILOGUE_TXT_PATH
 
 # -------------[ INITIALIZATION ]-------------
 
@@ -33,7 +33,10 @@ from config import TRANSCRIPTIONS_LOG_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, EP
 root_dir = Path(__file__).parent.parent
 transcriptions_full_path = root_dir / TRANSCRIPTIONS_LOG_PATH 
 
-# Form the proper path to save the epilogue
+# Form the proper path to save the epilogue text
+epilogue_txt_full_path = root_dir / EPILOGUE_TXT_PATH
+
+# Form the proper path to save the voiced epilogue
 epilogue_wav_full_path = root_dir / EPILOGUE_WAV_PATH
 
 # Form the proper paths for piper model and config
@@ -57,14 +60,32 @@ def trigger_final_sequence():
              the appropriate commands to the firmware to trigger the final
              movement and shutdown.
     """
+
+    # --- TECHNICAL DEBT ACKNOWLEDGEMENT ---
+    # NOTE: This function currently calls the real-time `get_llm_response` function
+    # with a boolean flag. This is a temporary, non-ideal implementation chosen
+    # to meet a critical deadline.
+    # POST-MORTEM ACTION: This must be refactored. The epilogue generation
+    # should be a completely standalone function within this module, using the
+    # shared groq_client to make its own, independent API call. This will
+    # properly decouple the modules and adhere to the Single Responsibility Principle.
+    # ---
+
+
     # 1. Read all the data
     all_text = read_transcriptions(str(transcriptions_full_path))
     
     # 2. Generate the epilogue
     epilogue = get_llm_response(all_text, True)
-    #TODO Make this a standalone function and handle the API with a groq_client.py module
     print("Generated epilogue:")
     print(epilogue)
+    try:
+        with open(epilogue_txt_full_path, 'w', encoding='utf-8') as f:
+            f.write(epilogue)
+        print(f"Final epilogue saved for last edits to: {epilogue_txt_full_path}")
+    except IOError as e:
+        print(f"Error saving epilogue for review: {e}")
+
         
     # 3. Get user confirmation before proceeding
     input("Press Enter to begin the final sequence...")
@@ -72,7 +93,8 @@ def trigger_final_sequence():
     # 4. Send "final speech" command to firmware to set movement set for the speech
     
     # 5. Synthesize and play the final words
-    synthesize_speech(epilogue, str(epilogue_wav_full_path), piper_voice)
+    final_epilogue = read_transcriptions(str(epilogue_txt_full_path))
+    synthesize_speech(final_epilogue, str(epilogue_wav_full_path), piper_voice)
     print("Playing synthesized speech...")
     # Play the synthesized audio using ffplay (part of FFmpeg)
     os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {epilogue_wav_full_path}")
