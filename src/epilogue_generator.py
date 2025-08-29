@@ -49,6 +49,10 @@ def trigger_final_sequence():
     all_text = read_transcriptions(str(transcriptions_full_path))
     
     # 2. Generate the epilogue
+    epilogue = get_llm_response(all_text, True)
+    #TODO Make this a standalone function and handle the API with a groq_client.py module
+    print("Generated epilogue:")
+    print(epilogue)
         
     # 3. Get user confirmation before proceeding
     input("Press Enter to begin the final sequence...")
@@ -56,6 +60,7 @@ def trigger_final_sequence():
     # 4. Send "final speech" command to firmware to set movement set for the speech
     
     # 5. Synthesize and play the final words
+    
     
     # 6. Send "death" command to firmware
     

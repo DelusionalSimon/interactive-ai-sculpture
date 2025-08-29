@@ -28,7 +28,7 @@ from groq import Groq
 from dotenv import load_dotenv
 
 # import configuration settings
-from config import LLM_MODEL_INTERACTIONS, LLM_CORE_PROMPT, INTERACTIONS_PROMPT
+from config import LLM_MODEL_INTERACTIONS, LLM_CORE_PROMPT, INTERACTIONS_PROMPT, EPILOGUE_PROMPT, LLM_MODEL_EPILOGUE
 
 # load environment variables from .env file
 load_dotenv()
@@ -49,7 +49,7 @@ except Exception as e:
 print("Groq client initialized.")
 
 # -------------[ FUNCTIONS ]-------------
-def get_llm_response(prompt: str) -> str:
+def get_llm_response(prompt: str, epilogue_mode: bool = False) -> str:
     """
     @brief Gets a conversational response from the Groq API.
 
@@ -58,21 +58,34 @@ def get_llm_response(prompt: str) -> str:
              returns the generated text.
 
     @todo Implement error handling for API failures and rate limiting.
-    @todo add core prompt to guide the model's responses.
-                      
+    @todo Break out epilogue mode into a separate function in epilogue generator
+                          
     @param prompt The user's input string.
+    @param epilogue_mode = False Whether to use the LLM to generate the final synthesis
     @return The generated response text as a string.
     """
+
     # Create a copy of the prompt to avoid modifying the original list
     messages = LLM_CORE_PROMPT.copy()
-    formatted_prompt = INTERACTIONS_PROMPT.format(prompt=prompt)
-    messages[1]["content"] = formatted_prompt
 
-    # Send the request to the Groq API
-    chat_completion = client.chat.completions.create(
-        messages = messages,
-        model = LLM_MODEL_INTERACTIONS
-    )
+    if epilogue_mode:
+        formatted_prompt = EPILOGUE_PROMPT.format(transcriptions=prompt)
+        messages[1]["content"] = formatted_prompt
+
+        # Send the request to the Groq API
+        chat_completion = client.chat.completions.create(
+            messages = messages,
+            model = LLM_MODEL_EPILOGUE
+        )
+    else:
+        formatted_prompt = INTERACTIONS_PROMPT.format(prompt=prompt)
+        messages[1]["content"] = formatted_prompt
+
+        # Send the request to the Groq API
+        chat_completion = client.chat.completions.create(
+            messages = messages,
+            model = LLM_MODEL_INTERACTIONS
+        )
     return chat_completion.choices[0].message.content
 
 # -------------[ MAIN EXECUTION FOR TESTING ]-------------
