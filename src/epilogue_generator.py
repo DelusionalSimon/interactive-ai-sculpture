@@ -29,6 +29,10 @@ from config import TRANSCRIPTIONS_LOG_PATH
 
 # -------------[ INITIALIZATION ]-------------
 
+# Form the proper path for the transcriptions log
+root_dir = Path(__file__).parent.parent
+transcriptions_full_path = root_dir / TRANSCRIPTIONS_LOG_PATH 
+
 # Initialize the Piper voice model for TTS
 
 # -------------[ FINAL SYNTHESIS FUNCTION ]-------------
@@ -38,8 +42,27 @@ from config import TRANSCRIPTIONS_LOG_PATH
 # sending a serial command at the beginning to initiate speech movement set
 # and final death movement set after the speech is done. 
 
+
+# -------------[ HELPER FUNCTIONS ]-------------
+def read_transcriptions(file_path: str) -> str:
+    """
+    @brief Reads all transcribed text from the master log file
+    
+    @param file_path The file path to the transcriptions log
+    @return contents of the log file as a string.
+    """
+    print("Loading transcriptions log...")
+    try:
+        with open(file_path, 'r', encoding='utf-8') as f:
+            return f.read()
+    except FileNotFoundError:
+        print(f"Error: Log file not found at {file_path}")
+        return "" # Return empty string if no log exists yet
+    except IOError as e:
+        print(f"Error reading log file: {e}")
+        return ""
 # -------------[ MAIN EXECUTION ]-------------
 if __name__ == "__main__":
             
     print("Running epilogue generator...")
-    main_loop()
+    print(read_transcriptions(str(transcriptions_full_path)))
