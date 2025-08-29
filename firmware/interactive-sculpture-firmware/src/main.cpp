@@ -38,6 +38,9 @@ MovementSet currentMovement;
 // Set up state machine for user detection
 UserState userState = NO_USER;
 
+// Flag to indicate if the sculpture is under external AI control
+bool isAiControlled = false;
+
 // Concurrency variables for each separate task
 unsigned long userDetectTime = 0;
 unsigned long lastStateChangeTime = 0;
@@ -330,6 +333,9 @@ float readUltrasonicDistance(SensorType sensor) {
  * . 
  */
 void userDetection() {
+    if(isAiControlled) {
+        return; // Don't run user detection loop when the firmware is under the control of the AI
+    }
     if (millis() - userDetectTime < SAMPLING_INTERVAL_MS) {
         return; // Not time to sample yet
     }
@@ -375,16 +381,22 @@ void readSerialCommands() {
         String command = Serial.readStringUntil('\n');
         
         if (command == "set_state:REACTING_POSITIVE") {
+            isAiControlled = true; // AI takes control
             requestStateChange(REACTING_POSITIVE); 
         } else if (command == "set_state:REACTING_NEGATIVE") {
+            isAiControlled = true; // AI takes control
             requestStateChange(REACTING_NEGATIVE); 
         } else if (command == "set_state:REACTING_NEUTRAL") {
+            isAiControlled = true; // AI takes control
             requestStateChange(REACTING_NEUTRAL); 
         } else if (command == "set_state:FINAL_WORDS") {
+            isAiControlled = true; // AI takes control
             requestStateChange(FINAL_SPEECH); 
         } else if (command == "set_state:DEATH") {
+            isAiControlled = true; // AI takes control
             requestStateChange(DEATH); 
         } else if (command == "set_state:IDLE") {
+            isAiControlled = false; // AI takes control
             requestStateChange(IDLE); 
         }
     }
