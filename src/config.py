@@ -39,6 +39,7 @@ SENTIMENT_TO_MOVEMENT_MAP = {
 SENTIMENT_BAD_THRESHOLD = -0.1
 SENTIMENT_GOOD_THRESHOLD = 0.1
 STANDARD_STATE = "set_state:IDLE"
+FINAL_SPEECH_STATE = "set_state:FINAL_WORDS"
 
 # -------------[ VOICE TRANSCRIPTION ]-------------
 # Audio recording settings

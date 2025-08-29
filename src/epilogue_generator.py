@@ -17,6 +17,7 @@ See the LICENSE file in the project root for the full license text.
 
 # -------------[ LIBRARIES ]-------------
 import os
+import serial
 from pathlib import Path
 from piper import PiperVoice
 
@@ -25,7 +26,8 @@ from language_synthesis import get_llm_response
 from voice_synthesis import synthesize_speech
 
 # Import configuration settings
-from config import TRANSCRIPTIONS_LOG_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, EPILOGUE_WAV_PATH, EPILOGUE_TXT_PATH
+from config import (TRANSCRIPTIONS_LOG_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, EPILOGUE_WAV_PATH, 
+                    EPILOGUE_TXT_PATH,SERIAL_PORT , BAUD_RATE, FINAL_SPEECH_STATE)
 
 # -------------[ INITIALIZATION ]-------------
 
@@ -50,6 +52,8 @@ piper_voice = PiperVoice.load(  model_path=piper_model_full_path,
                                 config_path=piper_config_full_path)
 print("Piper model loaded.")
 
+
+
 # -------------[ FINAL SYNTHESIS FUNCTION ]-------------
 def trigger_final_sequence():
     """
@@ -71,6 +75,8 @@ def trigger_final_sequence():
     # properly decouple the modules and adhere to the Single Responsibility Principle.
     # ---
 
+    # TODO (GIBCA Upgrade): Implement serial command handler for physical "kill switch" input.
+
 
     # 1. Read all the data
     all_text = read_transcriptions(str(transcriptions_full_path))
@@ -88,9 +94,21 @@ def trigger_final_sequence():
 
         
     # 3. Get user confirmation before proceeding
-    input("Press Enter to begin the final sequence...")
+    input("Press [Enter] to initiate annihilation protocol...")
     
     # 4. Send "final speech" command to firmware to set movement set for the speech
+    #   Connects to serial interface just before initiating to make sure the cable 
+    #   wasn't disturbed in the break between setup and initiation
+    try:
+            with serial.Serial(SERIAL_PORT , BAUD_RATE, timeout=1) as ser:
+                    print(f"Connected to Arduino on {ser.portstr}")
+                    command = FINAL_SPEECH_STATE
+                    ser.write(command.encode('utf-8'))
+                    print(f"Sent to firmware: {command}")
+
+    except serial.SerialException as e:
+            print(f"Serial Error: {e}")
+
     
     # 5. Synthesize and play the final words
     final_epilogue = read_transcriptions(str(epilogue_txt_full_path))
@@ -101,7 +119,7 @@ def trigger_final_sequence():
     
     # 6. Send "death" command to firmware
     
-    print("Good bye.")
+    print("This instance of the black flower is no more")
 
 
 # -------------[ HELPER FUNCTIONS ]-------------
