@@ -16,16 +16,16 @@ See the LICENSE file in the project root for the full license text.
 """
 
 # -------------[ LIBRARIES ]-------------
-import sys
 import os
 from pathlib import Path
+from piper import PiperVoice
 
 # Internal module imports
 from language_synthesis import get_llm_response
 from voice_synthesis import synthesize_speech
 
 # Import configuration settings
-from config import TRANSCRIPTIONS_LOG_PATH
+from config import TRANSCRIPTIONS_LOG_PATH, MODEL_ONNX_PATH, MODEL_JSON_PATH, EPILOGUE_WAV_PATH
 
 # -------------[ INITIALIZATION ]-------------
 
@@ -33,7 +33,19 @@ from config import TRANSCRIPTIONS_LOG_PATH
 root_dir = Path(__file__).parent.parent
 transcriptions_full_path = root_dir / TRANSCRIPTIONS_LOG_PATH 
 
-# Initialize the Piper voice model for TTS
+# Form the proper path to save the epilogue
+epilogue_wav_full_path = root_dir / EPILOGUE_WAV_PATH
+
+# Form the proper paths for piper model and config
+root_dir = Path(__file__).parent.parent
+piper_model_full_path = root_dir / MODEL_ONNX_PATH
+piper_config_full_path = root_dir / MODEL_JSON_PATH
+
+# Initialize the Piper voice model
+print("Loading Piper model...")
+piper_voice = PiperVoice.load(  model_path=piper_model_full_path, 
+                                config_path=piper_config_full_path)
+print("Piper model loaded.")
 
 # -------------[ FINAL SYNTHESIS FUNCTION ]-------------
 def trigger_final_sequence():
@@ -60,7 +72,10 @@ def trigger_final_sequence():
     # 4. Send "final speech" command to firmware to set movement set for the speech
     
     # 5. Synthesize and play the final words
-    
+    synthesize_speech(epilogue, str(epilogue_wav_full_path), piper_voice)
+    print("Playing synthesized speech...")
+    # Play the synthesized audio using ffplay (part of FFmpeg)
+    os.system(f"ffplay -nodisp -autoexit -hide_banner -loglevel quiet {epilogue_wav_full_path}")
     
     # 6. Send "death" command to firmware
     

@@ -112,10 +112,15 @@ MODEL_DIR = "models/piper"
 MODEL_ONNX_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx")
 MODEL_JSON_PATH = os.path.join(MODEL_DIR, f"{MODEL_NAME}.onnx.json")
 
-# Path to save synthesized audio
+# Path to save synthesized audio for the interactions
 OUTPUT_WAV_DIR = "output"
 OUTPUT_WAV_FILE = "output_speech.wav"
 OUTPUT_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, OUTPUT_WAV_FILE)
+
+# Path to save synthesized audio for the epilogue
+EPILOGUE_WAV_FILE = "epilogue_speech.wav"
+EPILOGUE_WAV_PATH = os.path.join(OUTPUT_WAV_DIR, EPILOGUE_WAV_FILE)
+
 
 # Paths to pregenerated audio clips
 INPUT_WAV_DIR = "output" # Use output for now to not pollute git history
