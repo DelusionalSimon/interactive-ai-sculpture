@@ -36,11 +36,30 @@ transcriptions_full_path = root_dir / TRANSCRIPTIONS_LOG_PATH
 # Initialize the Piper voice model for TTS
 
 # -------------[ FINAL SYNTHESIS FUNCTION ]-------------
-
-# this system should run, generate the final speech from the user_transcriptions log
-# print the speech, wait for a verification by the user before synthetizing the speech
-# sending a serial command at the beginning to initiate speech movement set
-# and final death movement set after the speech is done. 
+def trigger_final_sequence():
+    """
+    @brief  Orchestrates the entire end-of-life sequence for the sculpture.
+    
+    @details This function is the master controller for the final event. It reads
+             the log, generates the epilogue, synthesizes the audio, and sends
+             the appropriate commands to the firmware to trigger the final
+             movement and shutdown.
+    """
+    # 1. Read all the data
+    all_text = read_transcriptions(str(transcriptions_full_path))
+    
+    # 2. Generate the epilogue
+        
+    # 3. Get user confirmation before proceeding
+    input("Press Enter to begin the final sequence...")
+    
+    # 4. Send "final speech" command to firmware to set movement set for the speech
+    
+    # 5. Synthesize and play the final words
+    
+    # 6. Send "death" command to firmware
+    
+    print("Good bye.")
 
 
 # -------------[ HELPER FUNCTIONS ]-------------
@@ -65,4 +84,4 @@ def read_transcriptions(file_path: str) -> str:
 if __name__ == "__main__":
             
     print("Running epilogue generator...")
-    print(read_transcriptions(str(transcriptions_full_path)))
+    trigger_final_sequence()
