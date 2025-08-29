@@ -21,7 +21,7 @@ import os
 
 # -------------[ LOGIC BRIDGE ]-------------
 # Serial connection
-SERIAL_PORT = "COM8"  # Adjust this to your Arduino's serial port
+SERIAL_PORT = "COM7"  # Adjust this to your Arduino's serial port
 BAUD_RATE = 9600 # Match the baud rate in config.h
 
 # time to hold reaction movement set before returning to idle after talking 
@@ -41,6 +41,8 @@ SENTIMENT_TO_MOVEMENT_MAP = {
 }
 SENTIMENT_BAD_THRESHOLD = -0.1
 SENTIMENT_GOOD_THRESHOLD = 0.1
+
+# Other movement states
 STANDARD_STATE = "set_state:IDLE"
 FINAL_SPEECH_STATE = "set_state:FINAL_WORDS"
 DEATH_STATE = "set_state:DEATH"

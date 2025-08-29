@@ -129,6 +129,8 @@ enum MovementState {
     REACTING_POSITIVE,  
     REACTING_NEGATIVE,
     REACTING_NEUTRAL,
+    FINAL_SPEECH,
+    DEATH,
     NO_CHANGE           // Used to keep track of when the state isn't changing
 };
 
@@ -148,6 +150,7 @@ const MovementSet LISTEN_MOVEMENT = {20, 20.0, 5};
 const MovementSet POSITIVE_MOVEMENT = {25.0, 90, 2};
 const MovementSet NEGATIVE_MOVEMENT = {5, 135, 3};
 const MovementSet NEUTRAL_MOVEMENT = {20, 90, 1.5};
-// TODO: Add more movement sets
+const MovementSet FINAL_SPEECH_MOVEMENT = {20, 90, 1.5};
+const MovementSet DEATH_MOVEMENT = {0, 180, 0.1};
 
 #endif // CONFIG_H

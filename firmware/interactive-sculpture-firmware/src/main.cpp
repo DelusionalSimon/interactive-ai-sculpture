@@ -200,6 +200,8 @@ MovementSet getMovementSetForState(MovementState state) {
     case REACTING_POSITIVE: return POSITIVE_MOVEMENT;
     case REACTING_NEGATIVE: return NEGATIVE_MOVEMENT;
     case REACTING_NEUTRAL: return NEUTRAL_MOVEMENT;
+    case FINAL_SPEECH: return FINAL_SPEECH_MOVEMENT;
+    case DEATH: return DEATH_MOVEMENT;
     case IDLE:
     default: return IDLE_MOVEMENT;
   }
@@ -364,6 +366,7 @@ void userDetection() {
                 Serial.println("event:user_interaction_end");
                 userState = USER_APPROACHING;
             }
+        
             break;
     }
 }
@@ -377,8 +380,13 @@ void readSerialCommands() {
             requestStateChange(REACTING_NEGATIVE); 
         } else if (command == "set_state:REACTING_NEUTRAL") {
             requestStateChange(REACTING_NEUTRAL); 
+        } else if (command == "set_state:FINAL_WORDS") {
+            requestStateChange(FINAL_SPEECH); 
+        } else if (command == "set_state:DEATH") {
+            requestStateChange(DEATH); 
         } else if (command == "set_state:IDLE") {
             requestStateChange(IDLE); 
         }
     }
 }
+
