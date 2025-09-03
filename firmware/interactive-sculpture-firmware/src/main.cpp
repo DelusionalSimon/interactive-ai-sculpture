@@ -376,6 +376,16 @@ void userDetection() {
             break;
     }
 }
+
+/** 
+ * @brief  Reads incoming serial commands and sets the state accordingly
+ * 
+ * @details This function takes in serial commands sent from the python AI pipeline and 
+ * utilizes the requestStateChange() function to set the state accordingly. It also sets
+ * the isAiControlled variable to make sure that incoming sensor readings don't interrupts
+ * the series of movement states sent from the AI
+ * 
+ */
 void readSerialCommands() {
     if (Serial.available() > 0) {
         String command = Serial.readStringUntil('\n');
