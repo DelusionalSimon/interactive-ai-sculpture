@@ -46,17 +46,21 @@ unsigned long userDetectTime = 0;
 unsigned long lastStateChangeTime = 0;
 
 //-------------[ FUNCTION PROTOTYPES ]-------------
+// Mechatronics & Movement functions
 void  moveLeaf(float phase, int leafIndex, const MovementSet& movementSet);
 void  initializeLeafPositions();
 void  updateLeafMovement();
+// State Machine Functions
 MovementSet getMovementSetForState(MovementState state);
 void  requestStateChange(MovementState newState);
 void  updateStateMachine();
-float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
-float lerp(float start, float end, float progress);
+void  readSerialCommands();
+// Sensor Handling Functions
 float readUltrasonicDistance(SensorType sensor);
 void  userDetection();
-void  readSerialCommands();
+// Utility functions
+float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
+float lerp(float start, float end, float progress);
 
 //-------------[ SETUP FUNCTION ]-------------
 void setup() {
@@ -101,7 +105,8 @@ void loop() {
 }
 
   
-//-------------[ HELPER FUNCTIONS ]-------------
+//-------------[ MECHATRONICS & MOVEMENT FUNCTIONS ]-------------
+
 /** 
  * @brief  Translates an animation phase and MovementSet into a physical servo position.
  *
@@ -190,6 +195,10 @@ void updateLeafMovement() {
 
   }  
 }
+
+
+//-------------[ STATE MACHINE FUNCTIONS ]-------------
+
 /**
  * @brief  Select the correct movement parameters based on the current state
  * 
@@ -244,34 +253,43 @@ void updateStateMachine() {
     }
 }
 
- /**
- * @brief Re-maps a number from one range to another using floating-point math.
+/** 
+ * @brief  Reads incoming serial commands and sets the state accordingly
  * 
- * @param x The number to map.
- * @param in_min The lower bound of the value's current range.
- * @param in_max The upper bound of the value's current range.
- * @param out_min The lower bound of the value's target range.
- * @param out_max The upper bound of the value's target range.
+ * @details This function takes in serial commands sent from the python AI pipeline and 
+ * utilizes the requestStateChange() function to set the state accordingly. It also sets
+ * the isAiControlled variable to make sure that incoming sensor readings don't interrupts
+ * the series of movement states sent from the AI pipeline
  * 
- * @return The mapped value as a float.
  */
-float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
-  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+void readSerialCommands() {
+    if (Serial.available() > 0) {
+        String command = Serial.readStringUntil('\n');
+        
+        if (command == "set_state:REACTING_POSITIVE") {
+            isAiControlled = true; // AI takes control
+            requestStateChange(REACTING_POSITIVE); 
+        } else if (command == "set_state:REACTING_NEGATIVE") {
+            isAiControlled = true; // AI takes control
+            requestStateChange(REACTING_NEGATIVE); 
+        } else if (command == "set_state:REACTING_NEUTRAL") {
+            isAiControlled = true; // AI takes control
+            requestStateChange(REACTING_NEUTRAL); 
+        } else if (command == "set_state:FINAL_WORDS") {
+            isAiControlled = true; // AI takes control
+            requestStateChange(FINAL_SPEECH); 
+        } else if (command == "set_state:DEATH") {
+            isAiControlled = true; // AI takes control
+            requestStateChange(DEATH); 
+        } else if (command == "set_state:IDLE") {
+            isAiControlled = false; // AI takes control
+            requestStateChange(IDLE); 
+        }
+    }
 }
 
-/**
- * @brief  Calculates a point between two values using linear interpolation (lerp).
- * 
- * @param  start The starting value (returned when progress is 0.0).
- * @param  end The ending value (returned when progress is 1.0).
- * @param  progress The interpolation factor, typically a value from 0.0 to 1.0.
- * 
- * @return The interpolated value between the start and end points
- */
-float lerp(float start, float end, float progress) {
-  return start + (end - start) * progress;
-}
 
+//-------------[ SENSOR HANDLING FUNCTIONS ]-------------
 
 /** 
  * @brief  Reads distance from the ultrasonic sensor.
@@ -383,7 +401,7 @@ void userDetection() {
  * @details This function takes in serial commands sent from the python AI pipeline and 
  * utilizes the requestStateChange() function to set the state accordingly. It also sets
  * the isAiControlled variable to make sure that incoming sensor readings don't interrupts
- * the series of movement states sent from the AI
+ * the series of movement states sent from the AI pipeline
  * 
  */
 void readSerialCommands() {
@@ -410,5 +428,37 @@ void readSerialCommands() {
             requestStateChange(IDLE); 
         }
     }
+}
+
+
+
+//-------------[ UTILITY FUNCTIONS ]-------------
+
+ /**
+ * @brief Re-maps a number from one range to another using floating-point math.
+ * 
+ * @param x The number to map.
+ * @param in_min The lower bound of the value's current range.
+ * @param in_max The upper bound of the value's current range.
+ * @param out_min The lower bound of the value's target range.
+ * @param out_max The upper bound of the value's target range.
+ * 
+ * @return The mapped value as a float.
+ */
+float mapFloat(float x, float in_min, float in_max, float out_min, float out_max) {
+  return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+/**
+ * @brief  Calculates a point between two values using linear interpolation (lerp).
+ * 
+ * @param  start The starting value (returned when progress is 0.0).
+ * @param  end The ending value (returned when progress is 1.0).
+ * @param  progress The interpolation factor, typically a value from 0.0 to 1.0.
+ * 
+ * @return The interpolated value between the start and end points
+ */
+float lerp(float start, float end, float progress) {
+  return start + (end - start) * progress;
 }
 
