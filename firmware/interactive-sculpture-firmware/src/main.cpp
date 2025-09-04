@@ -58,7 +58,9 @@ void  readSerialCommands();
 // Sensor Handling Functions
 float readUltrasonicDistance(SensorType sensor);
 void  userDetection();
-// Utility functions
+// Diagnostics & Calibration Functions
+void runDemonstrationMode();
+// Utility Functions
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
 float lerp(float start, float end, float progress);
 
@@ -85,6 +87,9 @@ void setup() {
 
   // Move leaves to starting position
   initializeLeafPositions();
+
+  // Initialize variable used for runDemonstrationMode
+  unsigned long changeTime = millis();
   
 
 }
@@ -92,9 +97,14 @@ void setup() {
 //-------------[ MAIN LOOP ]-------------
 void loop() {
 
+  // Diagnostics: Test and tune the system.
+  // When in this mode comment out the Input functions userDetection() and 
+  // readSerialCommands() below.
+  runDemonstrationMode();
+  
   // Input: Gather information from sensors and serial
-  userDetection(); 
-  readSerialCommands();
+  //userDetection(); 
+  //readSerialCommands();
 
   // Process: Make decisions based on the new information
   updateStateMachine();
@@ -428,6 +438,41 @@ void readSerialCommands() {
             requestStateChange(IDLE); 
         }
     }
+}
+
+
+//-------------[ DIAGNOSTIC & CALIBRATION FUNCTIONS ]-------------
+
+/**
+ * @brief  Cycles through all defined movement states for demonstration.
+ * 
+ * @details This is a nonblocking function intended for testing and showcasing
+ * the animation engine. It should not be used in the final interactive loop.
+ * 
+ */
+void runDemonstrationMode() {
+    // start at 1 since it starts in IDLE. 
+    static int currentDemoIndex = 1;
+
+    if (millis() - lastStateChangeTime > DEMONSTRATION_MODE_TIMING) {
+       
+      lastStateChangeTime = millis();
+        
+      // Find the next valid state to demonstrate, skipping unwanted ones
+      do {
+          // Iterate demo index and round over when the end is reached
+          currentDemoIndex = (currentDemoIndex + 1) % NUM_MOVEMENT_STATES;
+          MovementState nextState = static_cast<MovementState>(currentDemoIndex);
+          
+          // If the next state is unwanted, skip the rest of the code and run the loop again 
+          if (nextState == NUM_MOVEMENT_STATES || nextState == NO_CHANGE) {
+              continue; // Continue to the next iteration
+          }
+          // if the state is wanted, update the state
+          requestStateChange(nextState);
+          break; // Exit the do-while loop
+      } while (true); // This loop will skip through unwanted states until a valid state is found
+    }    
 }
 
 

@@ -105,6 +105,8 @@ const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
     
 };
 
+const unsigned long DEMONSTRATION_MODE_TIMING = 5000;
+
 
 //-------------[ STATE MACHINE DEFINITION ]-------------
 // Cooldown period to prevent rapid state changes from noisy sensors
@@ -131,7 +133,8 @@ enum MovementState {
     REACTING_NEUTRAL,
     FINAL_SPEECH,
     DEATH,
-    NO_CHANGE           // Used to keep track of when the state isn't changing
+    NO_CHANGE,           // Used to keep track of when the state isn't changing
+    NUM_MOVEMENT_STATES // Used to iterate through the enum
 };
 
 // Define the movement sets for different states
