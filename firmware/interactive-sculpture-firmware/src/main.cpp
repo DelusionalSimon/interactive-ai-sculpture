@@ -88,26 +88,25 @@ void setup() {
   // Move leaves to starting position
   initializeLeafPositions();
 
-  // Initialize variable used for runDemonstrationMode
-  unsigned long changeTime = millis();
-  
 
 }
 
 //-------------[ MAIN LOOP ]-------------
 void loop() {
 
+  // TODO: Add a physical killswitch to stall the whole firmware
+
   // Diagnostics: Test and tune the system.
   // When in this mode comment out the Input functions userDetection() and 
   // readSerialCommands() below.
-  runDemonstrationMode();
+  //runDemonstrationMode();
   
   // Input: Gather information from sensors and serial
   //userDetection(); 
   //readSerialCommands();
 
   // Process: Make decisions based on the new information
-  updateStateMachine();
+  //updateStateMachine();
 
   // Output: Move the leaves to reflect the current state
   updateLeafMovement();
@@ -405,40 +404,6 @@ void userDetection() {
     }
 }
 
-/** 
- * @brief  Reads incoming serial commands and sets the state accordingly
- * 
- * @details This function takes in serial commands sent from the python AI pipeline and 
- * utilizes the requestStateChange() function to set the state accordingly. It also sets
- * the isAiControlled variable to make sure that incoming sensor readings don't interrupts
- * the series of movement states sent from the AI pipeline
- * 
- */
-void readSerialCommands() {
-    if (Serial.available() > 0) {
-        String command = Serial.readStringUntil('\n');
-        
-        if (command == "set_state:REACTING_POSITIVE") {
-            isAiControlled = true; // AI takes control
-            requestStateChange(REACTING_POSITIVE); 
-        } else if (command == "set_state:REACTING_NEGATIVE") {
-            isAiControlled = true; // AI takes control
-            requestStateChange(REACTING_NEGATIVE); 
-        } else if (command == "set_state:REACTING_NEUTRAL") {
-            isAiControlled = true; // AI takes control
-            requestStateChange(REACTING_NEUTRAL); 
-        } else if (command == "set_state:FINAL_WORDS") {
-            isAiControlled = true; // AI takes control
-            requestStateChange(FINAL_SPEECH); 
-        } else if (command == "set_state:DEATH") {
-            isAiControlled = true; // AI takes control
-            requestStateChange(DEATH); 
-        } else if (command == "set_state:IDLE") {
-            isAiControlled = false; // AI takes control
-            requestStateChange(IDLE); 
-        }
-    }
-}
 
 
 //-------------[ DIAGNOSTIC & CALIBRATION FUNCTIONS ]-------------

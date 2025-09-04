@@ -80,8 +80,8 @@ const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
     int maxAngle; // Maximum angle in degrees
 };
 const AngleRange LEAF_RANGES[NUM_LEAVES] = {
-    {45, 135}, // Leaf 1 range
-    {45, 135},
+    {90, 91}, // Leaf 1 range
+    {90, 91},
 };
 //TODO: Add more leaves with their ranges 
 
