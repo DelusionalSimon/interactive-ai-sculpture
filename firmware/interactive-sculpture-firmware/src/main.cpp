@@ -99,14 +99,14 @@ void loop() {
   // Diagnostics: Test and tune the system.
   // When in this mode comment out the Input functions userDetection() and 
   // readSerialCommands() below.
-  //runDemonstrationMode();
+  runDemonstrationMode();
   
   // Input: Gather information from sensors and serial
   //userDetection(); 
   //readSerialCommands();
 
   // Process: Make decisions based on the new information
-  //updateStateMachine();
+  updateStateMachine();
 
   // Output: Move the leaves to reflect the current state
   updateLeafMovement();
@@ -435,6 +435,10 @@ void runDemonstrationMode() {
           }
           // if the state is wanted, update the state
           requestStateChange(nextState);
+
+          // print the state to terminal for debugging
+          Serial.println(nextState);
+
           break; // Exit the do-while loop
       } while (true); // This loop will skip through unwanted states until a valid state is found
     }    

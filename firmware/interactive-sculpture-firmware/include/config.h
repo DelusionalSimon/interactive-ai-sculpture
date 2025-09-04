@@ -80,8 +80,8 @@ const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
     int maxAngle; // Maximum angle in degrees
 };
 const AngleRange LEAF_RANGES[NUM_LEAVES] = {
-    {90, 91}, // Leaf 1 range
-    {90, 91},
+    {85, 100}, // Leaf 1 is the left leaf in the current sculpture
+    {90, 125},
 };
 //TODO: Add more leaves with their ranges 
 
@@ -100,8 +100,8 @@ struct BaselineMovement {
 };
 // Define the baseline movement for each leaf
 const BaselineMovement LEAF_BASELINES[NUM_LEAVES] = {
-    {0.001, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
-    {0.0015, 0.3},
+    {0.002, 0.0}, // Leaf 1 baseline movement (speed in radians per loop, phase offset in radians)
+    {0.003, 0.3},
     
 };
 
@@ -148,12 +148,12 @@ struct MovementSet {
 const float VIRTUAL_MIN = 0; 
 const float VIRTUAL_MAX = 180;
 const MovementSet IDLE_MOVEMENT = {90, 90.0, 2};
-const MovementSet APPROACH_MOVEMENT = {20, 20.0, 1};
-const MovementSet LISTEN_MOVEMENT = {20, 20.0, 5};
+const MovementSet APPROACH_MOVEMENT = {20, 160, 1};
+const MovementSet LISTEN_MOVEMENT = {20, 160, 5};
 const MovementSet POSITIVE_MOVEMENT = {25.0, 90, 2};
-const MovementSet NEGATIVE_MOVEMENT = {5, 135, 3};
+const MovementSet NEGATIVE_MOVEMENT = {20, 40, 10};
 const MovementSet NEUTRAL_MOVEMENT = {20, 90, 1.5};
-const MovementSet FINAL_SPEECH_MOVEMENT = {20, 90, 1.5};
-const MovementSet DEATH_MOVEMENT = {0, 180, 0.1};
+const MovementSet FINAL_SPEECH_MOVEMENT = {50, 90, 3};
+const MovementSet DEATH_MOVEMENT = {0, 0, 0.1};
 
 #endif // CONFIG_H
