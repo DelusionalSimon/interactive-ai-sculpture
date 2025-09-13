@@ -58,7 +58,7 @@ void  readSerialCommands();
 // Sensor Handling Functions
 float readUltrasonicDistance(SensorType sensor);
 void  userDetection();
-// Diagnostics & Calibration Functions
+// Diagnostics & Fallback Functions
 void runDemonstrationMode();
 // Utility Functions
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
@@ -406,7 +406,7 @@ void userDetection() {
 
 
 
-//-------------[ DIAGNOSTIC & CALIBRATION FUNCTIONS ]-------------
+//-------------[ DIAGNOSTIC & FALLBACK FUNCTIONS ]-------------
 
 /**
  * @brief  Cycles through all defined movement states for demonstration.
@@ -441,6 +441,19 @@ void runDemonstrationMode() {
           break; // Exit the do-while loop
       } while (true); // This loop will skip through unwanted states until a valid state is found
     }    
+}
+
+/**
+ * @brief  A stochastic movement engine that changes movements randomly for organic complexity.
+ * 
+ * @details This is a nonblocking fallback function for when the serial connection fails 
+ * or the AI pipeline crashes. It randomly switches between different movement states 
+ * which it holds for a random duration to create an organic and unpredictable
+ * movement pattern.
+ * 
+ */
+void runFallbackMovement() { 
+ // TODO: Implement this function using runDemonstrationMode as a base
 }
 
 
