@@ -125,8 +125,8 @@ enum UserState {
 
 // An enum to give the movement states clear, readable names.
 enum MovementState {
-    IDLE,               // Default state when the sculpture is not interacting
     APPROACH,
+    IDLE,               // Default state when the sculpture is not interacting
     LISTEN,             // State when the sculpture is listening for input 
     REACTING_POSITIVE,  
     REACTING_NEGATIVE,
