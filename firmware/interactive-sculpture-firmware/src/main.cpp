@@ -29,7 +29,7 @@ Adafruit_PWMServoDriver pwm = Adafruit_PWMServoDriver();
 float currentPhases[NUM_LEAVES];
 
 // Set up state machone for movement
-MovementState movementState = IDLE; // Start in IDLE state
+MovementState movementState = DEATH; // Start in DEATH state
 MovementState pendingState = NO_CHANGE; // Keeps track of the next state
 
 // Holds the live, interpolated movement parameters
@@ -161,7 +161,7 @@ void moveLeaf(float phase, int leafIndex, const MovementSet& movementSet) {
 void initializeLeafPositions() {
 
   for (int i = 0; i < NUM_LEAVES; i++) {    
-    moveLeaf(LEAF_BASELINES[i].phaseOffset, i, IDLE_MOVEMENT);
+    moveLeaf(LEAF_BASELINES[i].phaseOffset, i, DEATH_MOVEMENT);
   }
 
   // Give the servos a moment to reach their starting positions
@@ -415,9 +415,8 @@ void userDetection() {
  * the animation engine. It should not be used in the final interactive loop.
  * 
  */
-void runDemonstrationMode() {
-    // start at 1 since it starts in IDLE. 
-    static int currentDemoIndex = 1;
+void runDemonstrationMode() { 
+    static int currentDemoIndex = 0;
 
     if (millis() - lastStateChangeTime > DEMONSTRATION_MODE_TIMING) {
        
