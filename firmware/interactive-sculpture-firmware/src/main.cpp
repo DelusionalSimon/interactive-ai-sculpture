@@ -60,6 +60,7 @@ float readUltrasonicDistance(SensorType sensor);
 void  userDetection();
 // Diagnostics & Fallback Functions
 void runDemonstrationMode();
+void runFallbackMovement();
 // Utility Functions
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
 float lerp(float start, float end, float progress);
