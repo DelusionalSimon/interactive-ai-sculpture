@@ -410,38 +410,57 @@ void userDetection() {
 //-------------[ DIAGNOSTIC & FALLBACK FUNCTIONS ]-------------
 
 /**
- * @brief  Cycles through all defined movement states for demonstration.
- * 
- * @details This is a nonblocking function intended for testing and showcasing
- * the animation engine. It should not be used in the final interactive loop.
- * 
+ * @brief  Cycles through all defined movement states for a set duration.
+ *
+ * @details This is a non-blocking function intended for testing and showcasing
+ * the animation engine. It runs for a specified total duration and
+ * should be called repeatedly from the main loop.
+ *
+ * @param totalDurationSec The total time in seconds for the demo to run, 
+ * if set to 0 it runs indefinitely.
  */
-void runDemonstrationMode() { 
+void runDemonstrationMode(unsigned long totalDurationSec = 0) {
+    // Static variables to preserve state
+    static unsigned long demoStartTime = 0;
     static int currentDemoIndex = 0;
 
-    if (millis() - lastStateChangeTime > DEMONSTRATION_MODE_TIMING) {
-       
-      lastStateChangeTime = millis();
+    // Initialize the demo start time on the first run
+    if (demoStartTime == 0) {
+        demoStartTime = millis();
+    }
+
+    // Check if the total demo time has elapsed or it is set to 0 (infinite)
+    if (millis() - demoStartTime < totalDurationSec * 1000 || totalDurationSec == 0) {
+      if (millis() - lastStateChangeTime > DEMONSTRATION_MODE_TIMING) {
         
-      // Find the next valid state to demonstrate, skipping unwanted ones
-      do {
-          // Iterate demo index and round over when the end is reached
-          currentDemoIndex = (currentDemoIndex + 1) % NUM_MOVEMENT_STATES;
-          MovementState nextState = static_cast<MovementState>(currentDemoIndex);
+        lastStateChangeTime = millis();
           
-          // If the next state is unwanted, skip the rest of the code and run the loop again 
-          if (nextState == NUM_MOVEMENT_STATES || nextState == NO_CHANGE) {
-              continue; // Continue to the next iteration
-          }
-          // if the state is wanted, update the state
-          requestStateChange(nextState);
+        // Find the next valid state to demonstrate, skipping unwanted ones
+        do {
+            // Iterate demo index and round over when the end is reached
+            currentDemoIndex = (currentDemoIndex + 1) % NUM_MOVEMENT_STATES;
+            MovementState nextState = static_cast<MovementState>(currentDemoIndex);
+            
+            // If the next state is unwanted, skip the rest of the code and run the loop again 
+            if (nextState == NUM_MOVEMENT_STATES || nextState == NO_CHANGE) {
+                continue; // Continue to the next iteration
+            }
+            // if the state is wanted, update the state
+            requestStateChange(nextState);
 
-          // print the state to terminal for debugging
-          Serial.println(nextState);
+            // print the state to terminal for debugging
+            Serial.println(nextState);
 
-          break; // Exit the do-while loop
-      } while (true); // This loop will skip through unwanted states until a valid state is found
-    }    
+            break; // Exit the do-while loop
+        } while (true); // This loop will skip through unwanted states until a valid state is found
+      }    
+    }
+    else {
+        // Reset the demo if the total time has elapsed
+        demoStartTime = 0;
+        currentDemoIndex = 0;
+        requestStateChange(DEATH); // Return to death state after demo
+    }
 }
 
 /**
