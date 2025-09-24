@@ -59,7 +59,7 @@ void  readSerialCommands();
 float readUltrasonicDistance(SensorType sensor);
 void  userDetection();
 // Diagnostics & Fallback Functions
-void runDemonstrationMode();
+void runDemonstrationMode(unsigned long totalDurationSec);
 void runFallbackMovement();
 // Utility Functions
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
@@ -100,7 +100,7 @@ void loop() {
   // Diagnostics: Test and tune the system.
   // When in this mode comment out the Input functions userDetection() and 
   // readSerialCommands() below.
-  runDemonstrationMode();
+  runDemonstrationMode(3*60);
   
   // Input: Gather information from sensors and serial
   //userDetection(); 
@@ -407,6 +407,7 @@ void userDetection() {
 
 
 
+
 //-------------[ DIAGNOSTIC & FALLBACK FUNCTIONS ]-------------
 
 /**
@@ -419,7 +420,7 @@ void userDetection() {
  * @param totalDurationSec The total time in seconds for the demo to run, 
  * if set to 0 it runs indefinitely.
  */
-void runDemonstrationMode(unsigned long totalDurationSec = 0) {
+void runDemonstrationMode(unsigned long totalDurationSec) {
     // Static variables to preserve state
     static unsigned long demoStartTime = 0;
     static int currentDemoIndex = 0;
@@ -457,11 +458,26 @@ void runDemonstrationMode(unsigned long totalDurationSec = 0) {
     }
     else {
         // Reset the demo if the total time has elapsed
-        demoStartTime = 0;
-        currentDemoIndex = 0;
+        
         requestStateChange(DEATH); // Return to death state after demo
     }
 }
+
+/** 
+ * @brief  Determines if user is approaching using a PIR sensor.
+ * 
+ * @details This fallback function is a simple user detection loop that uses a 
+ * PIR sensor to detect motion. It is a non-blocking function that is used if
+ * ultrasonic detection proves unreliable
+ * 
+ * . 
+ */
+void fallbackDetection() {
+    if(isAiControlled) {
+        return; // Don't run when the firmware is under the control of the AI
+    }
+
+  }
 
 /**
  * @brief  A stochastic movement engine that changes movements randomly for organic complexity.
