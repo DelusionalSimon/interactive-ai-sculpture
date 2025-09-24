@@ -45,6 +45,9 @@ const Leaf LEAF_PINS[NUM_LEAVES] = {
 #define INTERACTION_TRIG_PIN 4
 #define INTERACTION_ECHO_PIN 5
 
+//Define PIR sensor pin
+#define PIR_PIN 7
+
 
 //-------------[ SERVO CALIBRATION ]-------------
 #define PULSEWIDTH_MIN 500
@@ -52,11 +55,12 @@ const Leaf LEAF_PINS[NUM_LEAVES] = {
 #define SERVO_MAX_ANGLE 270
 #define SERVO_FREQUENCY 50
 
-// -------------[ ULTRASONIC SENSOR CALIBRATION ]-------------
+// -------------[ SENSOR CALIBRATION ]-------------
 // An enum to create clear, readable names for the sensors
 enum SensorType {
   APPROACH_SENSOR,
-  INTERACTION_SENSOR
+  INTERACTION_SENSOR,
+  FALLBACK_SENSOR
 };
 
 // Ultrasonic sensor timing and conversion
@@ -71,6 +75,9 @@ const float SENSOR_OUT_OF_RANGE = 999; //  to sanitize sensor timeout
 
 // Sampling Interval for the sensors
 const int SAMPLING_INTERVAL_MS = 100; // 100 ms between readings
+
+// PIR sensor cooldown to prevent retriggering when the user leaves.
+const unsigned long PIR_COOLDOWN_MS = 5000; // 5 seconds
 
 
 //-------------[ PHYSICAL CONSTRAINTS ]-------------

@@ -60,6 +60,7 @@ float readUltrasonicDistance(SensorType sensor);
 void  userDetection();
 // Diagnostics & Fallback Functions
 void runDemonstrationMode(unsigned long totalDurationSec);
+void fallbackDetection();
 void runFallbackMovement();
 // Utility Functions
 float mapFloat(float x, float in_min, float in_max, float out_min, float out_max);
@@ -76,6 +77,9 @@ void setup() {
   pinMode(APPROACH_ECHO_PIN, INPUT);
   pinMode(INTERACTION_TRIG_PIN, OUTPUT);
   pinMode(INTERACTION_ECHO_PIN, INPUT);
+
+  // Set the pin mode for the PIR sensor
+  pinMode(PIR_PIN, INPUT);
     
   // Initialize the PCA9685 servo driver.
   pwm.begin();
@@ -292,7 +296,7 @@ void readSerialCommands() {
             isAiControlled = true; // AI takes control
             requestStateChange(DEATH); 
         } else if (command == "set_state:IDLE") {
-            isAiControlled = false; // AI takes control
+            isAiControlled = false; // AI releases control
             requestStateChange(IDLE); 
         }
     }
@@ -358,7 +362,7 @@ float readUltrasonicDistance(SensorType sensor) {
  * It updates the userState accordingly and triggers state changesin the 
  * movement state machine and sends serial events that are used by the host 
  * computer to initiate AI interaction
- * . 
+ *  
  */
 void userDetection() {
     if(isAiControlled) {
@@ -404,8 +408,6 @@ void userDetection() {
             break;
     }
 }
-
-
 
 
 //-------------[ DIAGNOSTIC & FALLBACK FUNCTIONS ]-------------
@@ -464,19 +466,51 @@ void runDemonstrationMode(unsigned long totalDurationSec) {
 }
 
 /** 
- * @brief  Determines if user is approaching using a PIR sensor.
+ * @brief  Determines if a user is interacting using a PIR sensor.
  * 
  * @details This fallback function is a simple user detection loop that uses a 
  * PIR sensor to detect motion. It is a non-blocking function that is used if
  * ultrasonic detection proves unreliable
  * 
- * . 
  */
 void fallbackDetection() {
     if(isAiControlled) {
         return; // Don't run when the firmware is under the control of the AI
     }
 
+    if (millis() - userDetectTime < SAMPLING_INTERVAL_MS) {
+        return; // Not time to sample yet
+    }
+
+    userDetectTime = millis(); // Update the timer
+    
+    // Static variable to manage the cooldown timer
+    static unsigned long lastPIRTriggerTime = 0;
+
+    // Static variable to track if control just got released
+    static bool controlReleased = true;
+
+    // If the control just released set timer
+    if (controlReleased) {
+        lastPIRTriggerTime = millis();
+        controlReleased = false;
+    }
+
+    // Read the current state of the PIR sensor
+    int pirState = digitalRead(PIR_PIN);
+
+     // Get the current time
+    unsigned long currentTime = millis();
+
+    // No user was present, but now motion is detected
+    if (pirState == HIGH) {
+        // Only trigger if we are outside the cooldown period
+        if (currentTime - lastPIRTriggerTime > PIR_COOLDOWN_MS) {
+            Serial.println("event:user_interaction_start");
+            userState = USER_INTERACTING; // this gives control to the AI
+            controlReleased = false;
+        }
+    }
   }
 
 /**
