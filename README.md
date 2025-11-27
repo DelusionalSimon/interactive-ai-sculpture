@@ -1,91 +1,86 @@
-# The Black Flower: Interactive AI Installation for GIBCA 2025
+# The Black Flower: AI-Driven Mechatronic System
 
-**Status:** [In Development]
+**Status:** [Completed / Shipped - Autumn 2025]
 
-A real-time interactive installation using Natural Language Processing (NLP), a local Large Language Model (LLM), and custom hardware, set to be exhibited at the Gothenburg International Biennial of Contemporary Art (GIBCA) in Autumn 2025.
+A real-time, sensor-driven interactive installation that integrates embedded hardware, generative AI, and physical actuation. Exhibited at the Gothenburg International Biennial of Contemporary Art (GIBCA) 2025.
 
----
-
-## Prerequisites
-
-### FFmpeg 
-
-FFmpeg is required and must be in the system's PATH variable for the Whisper module that handles transcription to work.
-
-### eSpeak NG
-
-eSpeak NG is required and must be in the system's PATH variable for the Piper TTS to handle voice generation.
-
-### API Keys
-
-This project relies on the Groq API for its language model. To run the project, you must:
-
-1. Create a Groq account and obtain an API key.
-2. Create a file named `.env` in the root of the project.
-3. Add your API key to the file in the following format:
-
-`GROQ_API_KEY="your_api_key_here"`
-
-## Core Objective & Technical Challenge
-
-The primary technical objective of this project is to design, build, and deploy a robust, standalone system capable of real-time interaction with the public. The system must analyze spoken user input and translate semantic and emotional data into dynamic physical outputs through mechatronics and generated speech.
-
-Key technical challenges include:
-* **Real-Time Performance:** Ensuring low latency from audio capture to physical reaction in a live environment.
-* **Local AI Deployment:** Running all ML models (transcription, sentiment analysis, LLM) locally on dedicated hardware to ensure user privacy and offline functionality.
-* **User Interaction** generating contextually relevant, real-time verbal replies
-* **System Hardening:** Implementing safeguards against prompt injection and managing unpredictable user interactions.
-* **Hardware/Software Integration:** Creating a stable interface between the AI/software layer and the physical layer of microcontrollers, sensors, motors, and LEDs.
-
-## Concept of Operations & User Interaction Flow
-
-The installation creates a real-time exchange between a visitor and an AI entity embodied in a physical sculpture. The interaction follows five distinct phases:
-
-1.  **Idle Phase:** When no one is nearby, the sculpture's mechanically controlled leaves are in a gentle, undulating "breathing" motion.
-
-2.  **Approach Phase:** An ultrasonic sensor detects an approaching visitor. The leaves curl back to reveal the central flower, which whispers a subtle audio cue to invite interaction.
-
-3.  **Interaction Phase:** An IR distance sensor detects when a visitor leans in. An audio prompt primes them to speak, and a high-fidelity microphone is activated to capture their input.
-
-4.  **Reaction Phase:** When the visitor leans back, the microphone deactivates. The system then executes the following AI pipeline:
-    * The audio is transcribed via a local Speech-to-Text model, and the original recording is immediately deleted for privacy.
-    * Sentiment analysis is performed on the text to determine the emotional tone.
-    * The transcribed text is sent to the local LLM to synthesize a concise, verbal reply.
-    * After a brief, deliberate pause, a moment of artificial 'thought',the system delivers a synchronized audio-visual response:
-      * A generative sequence of physical movement, influenced by the sentiment analysis, is initiated in the leaves.
-      * Simultaneously, the synthesized verbal reply is voiced through a hidden speaker.
-    * Finally, the transcription is appended to a master list for the final synthesis.
-
-1.  **Final words:** At the conclusion of the exhibition, the LLM processes the entire master list of user interactions to synthesize a single, final speech. This is delivered via a main speaker, accentuated by a final sequence of movement and light before the installation becomes dormant.
-
-## Technical Stack (initial plan)
-
-* **AI / Machine Learning:**
-    * Speech-to-Text: Whisper
-    * Sentiment Analysis: VADER
-    * Language Synthesis: Local LLM (Llama 3 or DeepSeek)
-    * Voice Synthesis: ElevenLabs
-    * Primary Languages: Python & C++
-    * Core Libraries: Pytorch, Numpy
-* **Hardware & Mechatronics:**
-    * Microcontrollers: Arduino Uno r3, PCA9685 Servo Driver
-    * Sensors : Condenser Microphone, Capacitive Touch Sensor, IR distance sensor (close by), Ultrasonic Distance sensors (long distance)
-    * Actuators: 3 × DM 8125MG 270° 25kg*cm High-Torque Digital Servo Motors
-    * Output: Small hidden speaker for whispers, Main speaker for final synthesis, Warm White LEDs 
+> **Note:** This repository contains the source code for the AI pipeline, embedded firmware, and system integration logic.
 
 
-## Role & Responsibilities
+## System Architecture
 
-As **Project Lead**, my responsibilities include overall project strategy, timeline management, and final delivery. I am also serving as the sole **Lead R&D Engineer**, personally managing the full technical stack, from AI model deployment to microcontroller programming and hardware integration into the sculpture.
+The system is designed as a **closed-loop physical AI agent**. It continuously monitors its environment via sensors, processes that data through a multi-stage AI pipeline, and manifests its internal state through physical movement and synthesized speech.
+
+### The "Sensor -\> AI -\> Actuator" Loop
+
+1.  **Sensing:** An array of ultrasonic and IR sensors monitors the physical proximity and engagement of visitors.
+2.  **Perception (AI):** Spoken input is captured via a high-fidelity microphone, transcribed locally (Whisper), and analyzed for sentiment (VADER).
+3.  **Cognition (LLM):** The transcribed text and sensor context are fed into a Large Language Model (via Groq API) to generate a context-aware verbal response and a target emotional state.
+4.  **Actuation (Embedded):** The system translates the target emotional state into stochastic movement patterns, driving high-torque servos via a custom C++ firmware on an Arduino controller.
+
+## Technical Stack
+
+### Software & AI Pipeline
+
+  * **Orchestration:** Python (AsyncIO)
+  * **Speech-to-Text:** OpenAI Whisper (Local deployment)
+  * **LLM Inference:** Llama 3 (via Groq API for low-latency \<100ms response)
+  * **Voice Synthesis:** Piper TTS (Local, low-latency)
+  * **Sentiment Analysis:** VADER (NLTK)
+
+### Hardware & Embedded
+
+  * **Controller:** Arduino Uno R3 with custom firmware
+  * **Driver:** PCA9685 16-Channel PWM Driver
+  * **Actuators:** 3× DM 8125MG High-Torque Digital Servos (25kg/cm)
+  * **Sensors:** Ultrasonic Rangefinders (HC-SR04), IR Obstacle Sensors, Capacitive Touch
+  * **Audio:** Custom pre-amp circuit + Class-D Amplifier
 
 
-## About the Event
+## Installation & Prerequisites
 
-The Gothenburg International Biennial of Contemporary Art (GIBCA) is one of the leading art biennials in the Nordic region. Our installation will be featured across three events, culminating in a final showing at GIBCA.
+To reproduce or run the software stack locally:
+
+### 1\. System Dependencies
+
+  * **FFmpeg:** Required for audio processing (Whisper). Must be in `$PATH`.
+  * **eSpeak NG:** Required for phoneme generation (Piper TTS). Must be in `$PATH`.
+
+### 2\. Python Environment
+
+```bash
+conda create -n blackflower python=3.10
+conda activate blackflower
+pip install -r requirements.txt
+```
+
+### 3\. API Configuration
+
+Create a `.env` file in the root directory:
+
+```bash
+GROQ_API_KEY="your_api_key_here"
+```
+
+## Core Challenges Solved
+
+### 1\. Latency Minimization
+
+Achieving conversational latency in a physical object required moving from cloud-based TTS (ElevenLabs) to a local neural TTS (Piper) and utilizing the Groq API for inference. Total round-trip time (Audio In -\> Audio Out) was optimized to sub-second levels.
+
+### 2\. Stochastic State Machines
+
+To prevent the sculpture from looking robotic, the firmware implements a stochastic state machine. Instead of looping animations, the system probabilistically transitions between states ("Breathing", "Curious", "Agitated") based on the current sentiment value derived from the user interaction.
+
+### 3\. Robustness
+
+The system was hardened for public deployment. This included:
+
+  * **Watchdog Timers:** To reset the microcontroller in case of I2C hang-ups.
+  * **Input Sanitization:** Safeguards against prompt injection attacks via spoken audio.
+  * **Privacy-First Design:** Audio buffers are processed in RAM and immediately overwritten; no voice data is stored.
 
 
 ## License
 
-This project is licensed under the MIT License. See the LICENSE file for details.
-
-
+Distributed under the MIT License. See `LICENSE` for more information.
